@@ -14,8 +14,10 @@
   "devDependencies": {
     "@playwright/test": "^1.49.0",
     "eslint": "^9.16.0",
+    "franc-min": "^6.2.0",
     "globals": "^15.13.0",
     "jsdom": "^25.0.1",
+    "trigrams": "^6.0.0",
     "vitest": "^2.1.8"
   }
 }
