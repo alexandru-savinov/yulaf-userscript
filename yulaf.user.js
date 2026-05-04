@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      0.1.0
+// @version      1.0.0
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -24,7 +24,7 @@
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '0.1.0',
+    VERSION: '1.0.0',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -104,8 +104,16 @@
         'ytd-rich-grid-media',
         'yt-lockup-view-model',
         'ytd-rich-section-renderer',
+        // m.youtube.com (mobile web)
+        'ytm-rich-item-renderer',
+        'ytm-video-with-context-renderer',
+        'ytm-compact-video-renderer',
+        'ytm-shorts-lockup-view-model',
+        'ytm-pivot-video-renderer',
+        'ytm-item-section-renderer',
+        'ytm-media-item',
       ],
-      channel: ['ytd-channel-renderer', 'ytd-channel-name'],
+      channel: ['ytd-channel-renderer', 'ytd-channel-name', 'ytm-channel-renderer'],
       title: [
         '#video-title',
         'a#video-title',
@@ -120,8 +128,13 @@
         'a[href*="/shorts/"]',
         'a[href*="/playlist"] h3',
         '.ytd-video-meta-block #video-title',
+        // m.youtube.com (mobile web)
+        '.media-item-headline',
+        '.compact-media-item-headline',
+        '.large-media-item-metadata h3',
+        'h4.media-item-headline',
       ],
-      channelName: ['#channel-name a', '.ytd-channel-name a', '#text.ytd-channel-name'],
+      channelName: ['#channel-name a', '.ytd-channel-name a', '#text.ytd-channel-name', '.media-item-byline'],
       description: [
         '.metadata-snippet-container',
         '#description-text',
@@ -229,31 +242,58 @@
       return Array.from(foundTexts).join(' ');
     },
 
+    // Hide via a CSS class with opacity + max-height transitions (less jarring
+    // than `display:none`, and reversible mid-animation). The accompanying CSS
+    // is injected once by `_ensureStyles` below.
     hideElement(element, type) {
-      element.style.display = 'none';
+      this._ensureStyles();
+      element.classList.add('yulaf-hidden');
       element.setAttribute(DATA_ATTR.HIDDEN, type || 'video');
     },
 
     showElement(element) {
-      element.style.display = '';
+      element.classList.remove('yulaf-hidden');
+      // Defensive cleanup: clear any inline styles older versions of the script
+      // (or third-party code) may have left behind.
+      if (element.style.display === 'none') element.style.display = '';
       element.style.visibility = '';
       element.style.opacity = '';
       element.removeAttribute(DATA_ATTR.HIDDEN);
     },
 
     isHidden(element) {
-      return element.hasAttribute(DATA_ATTR.HIDDEN) || element.style.display === 'none';
+      return (
+        element.hasAttribute(DATA_ATTR.HIDDEN) ||
+        element.classList.contains('yulaf-hidden') ||
+        element.style.display === 'none'
+      );
     },
 
     showAllHiddenContent() {
       document.querySelectorAll(`[${DATA_ATTR.HIDDEN}]`).forEach((el) => this.showElement(el));
       document.querySelectorAll(`[${DATA_ATTR.CHECKED}]`).forEach((el) => {
-        if (el.style.display === 'none') {
-          this.showElement(el);
-        }
+        this.showElement(el);
         el.removeAttribute(DATA_ATTR.CHECKED);
         el.removeAttribute(DATA_ATTR.LANG);
       });
+    },
+
+    _stylesInjected: false,
+    _hideCss:
+      '.yulaf-hidden{opacity:0!important;max-height:0!important;margin:0!important;' +
+      'padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;' +
+      'pointer-events:none!important;transition:opacity 200ms ease,max-height 200ms ease!important;}',
+    _ensureStyles() {
+      if (this._stylesInjected) return;
+      if (typeof document === 'undefined') return;
+      if (typeof GM_addStyle === 'function') {
+        try { GM_addStyle(this._hideCss); this._stylesInjected = true; return; } catch (e) { log('GM_addStyle (hide css)', e); }
+      }
+      const style = document.createElement('style');
+      style.setAttribute('data-yulaf-hide', '1');
+      style.textContent = this._hideCss;
+      (document.head || document.documentElement).appendChild(style);
+      this._stylesInjected = true;
     },
 
     getAllElements(type = 'video') {
@@ -921,7 +961,8 @@
       if (!this.panel) return;
 
       const ctrl = this._controller;
-      this.panel.innerHTML = '';
+      // YouTube enforces a Trusted Types CSP that forbids innerHTML; clear children manually.
+      while (this.panel.firstChild) this.panel.removeChild(this.panel.firstChild);
 
       const enabledRow = document.createElement('div');
       enabledRow.className = 'yulaf-row';
