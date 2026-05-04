@@ -268,17 +268,241 @@
     },
   };
 
-  // ── LanguageDetector (stub — Task 3) ───────────────────────────────────────
+  // ── LanguageDetector ───────────────────────────────────────────────────────
+  // Character-set based detection. Returns:
+  //   true  → text matches at least one target language's script (after exclusions)
+  //   false → text is in a non-Latin script that does not match any target
+  //   null  → text is pure-Latin / too short / ambiguous (defer to trigram detector in Task 4)
   const LanguageDetector = {
-    detect() {
-      return null;
+    characterValidators: {
+      // East Asian
+      ja: /[぀-ゟ゠-ヿ一-龯]/,
+      ko: /[가-힯ᄀ-ᇿ㄰-㆏]/,
+      zh: /[一-龯]/,
+      'zh-cn': /[一-龯]/,
+      'zh-tw': /[一-龯]/,
+      // Cyrillic
+      ru: /[Ѐ-ӿ]/,
+      uk: /[Ѐ-ӿ]/,
+      bg: /[Ѐ-ӿ]/,
+      sr: /[Ѐ-ӿ]/,
+      mk: /[Ѐ-ӿ]/,
+      be: /[Ѐ-ӿ]/,
+      // Arabic scripts
+      ar: /[؀-ۿݐ-ݿ]/,
+      fa: /[؀-ۿݐ-ݿ]/,
+      ur: /[؀-ۿݐ-ݿ]/,
+      // Greek
+      el: /[Ͱ-Ͽ]/,
+      // Hebrew
+      he: /[֐-׿]/,
+      // Thai
+      th: /[฀-๿]/,
+      // Devanagari
+      hi: /[ऀ-ॿ]/,
+      ne: /[ऀ-ॿ]/,
+      mr: /[ऀ-ॿ]/,
+      // Dravidian
+      ta: /[஀-௿]/,
+      te: /[ఀ-౿]/,
+      kn: /[ಀ-೿]/,
+      ml: /[ഀ-ൿ]/,
+      // Indic
+      gu: /[઀-૿]/,
+      bn: /[ঀ-৿]/,
+      // Other scripts
+      hy: /[԰-֏]/,
+      ka: /[Ⴀ-ჿ]/,
+      am: /[ሀ-፿]/,
+    },
+
+    exclusionPatterns: {
+      tr: {
+        excludedIf: 'en',
+        patterns: [
+          /\bthe\b/i, /\bwith\b/i, /\bfor\b/i, /\bwhat\b/i, /\bwhen\b/i,
+          /\bhow\b/i, /\bthis\b/i, /\bthat\b/i, /\byou\b/i, /\byour\b/i,
+          /\bare\b/i, /\bwas\b/i, /\bwere\b/i, /\bfrom\b/i, /\babout\b/i,
+        ],
+      },
+      de: {
+        excludedIf: 'en',
+        patterns: [
+          /\bthe\b/i, /\bwith\b/i, /\bthis\b/i, /\bthat\b/i,
+          /\byou\b/i, /\byour\b/i, /\bwhat\b/i, /\bwhen\b/i,
+        ],
+      },
+      ja: {
+        excludedIf: 'ko',
+        characterBased: true,
+        patterns: [/[가-힯]/],
+      },
+      ko: {
+        excludedIf: 'ja',
+        characterBased: true,
+        patterns: [/[぀-ゟ゠-ヿ]/],
+      },
+    },
+
+    hasLanguageCharacters(text, langCode) {
+      const v = this.characterValidators[langCode];
+      if (!v) return true;
+      return v.test(text);
+    },
+
+    _calcExclusionRatio(text, exclusions) {
+      if (exclusions.characterBased) {
+        const chars = text.replace(/\s/g, '');
+        if (chars.length === 0) return 0;
+        let matchCount = 0;
+        for (const ch of chars) {
+          if (exclusions.patterns.some((p) => p.test(ch))) matchCount++;
+        }
+        return matchCount / chars.length;
+      }
+      const words = text.split(/\s+/).filter((w) => w.length > 0);
+      if (words.length === 0) return 0;
+      let matchCount = 0;
+      for (const word of words) {
+        if (exclusions.patterns.some((p) => p.test(word))) matchCount++;
+      }
+      return matchCount / words.length;
+    },
+
+    detect(text, targetLanguages = []) {
+      if (!text || text.length < Constants.DETECTION.MIN_TEXT_LENGTH) return null;
+
+      const matchedTargets = [];
+      for (const lang of targetLanguages) {
+        const v = this.characterValidators[lang];
+        if (!v || !v.test(text)) continue;
+        const ex = this.exclusionPatterns[lang];
+        if (ex && !targetLanguages.includes(ex.excludedIf)) {
+          const ratio = this._calcExclusionRatio(text, ex);
+          if (ratio > Constants.DETECTION.EXCLUSION_RATIO_THRESHOLD) continue;
+        }
+        matchedTargets.push(lang);
+      }
+      if (matchedTargets.length > 0) return true;
+
+      for (const lang of Object.keys(this.characterValidators)) {
+        if (this.characterValidators[lang].test(text)) return false;
+      }
+
+      const hasLatinTarget = targetLanguages.some((l) => !this.characterValidators[l]);
+      return hasLatinTarget ? null : false;
     },
   };
 
-  // ── LanguageService (stub — Task 3) ────────────────────────────────────────
+  // ── LanguageService ────────────────────────────────────────────────────────
+  // Cache: insertion-order Map. On overflow, evict EVICTION_RATIO of maxSize from the front (FIFO).
   const LanguageService = {
+    selectedLanguages: [],
+    strictMode: false,
+    textCache: new Map(),
+    cacheStats: { hits: 0, misses: 0 },
+    cacheConfig: {
+      maxSize: Constants.CACHE.MAX_SIZE,
+      ttl: Constants.CACHE.TTL,
+      evictionRatio: Constants.CACHE.EVICTION_RATIO,
+    },
+
+    setLanguages(langCodes) {
+      const valid = Array.isArray(langCodes)
+        ? [...new Set(langCodes.filter((code) => Config.languages[code]))]
+        : [];
+      const changed =
+        valid.length !== this.selectedLanguages.length ||
+        valid.some((code, i) => code !== this.selectedLanguages[i]);
+      if (changed) {
+        this.clearCache();
+        this.selectedLanguages = valid;
+      }
+    },
+
+    setStrictMode(enabled) {
+      if (this.strictMode !== enabled) {
+        this.clearCache();
+        this.strictMode = enabled;
+      }
+    },
+
+    normalizeText(text) {
+      return text
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/[^\w\s-￿'-]/g, '');
+    },
+
+    createCacheKey(text, langs, strict) {
+      const sorted = [...langs].sort().join(',');
+      return `${this.normalizeText(text)}|${sorted}|${strict ? 'strict' : 'normal'}`;
+    },
+
+    getCachedResult(key) {
+      const entry = this.textCache.get(key);
+      if (!entry) {
+        this.cacheStats.misses++;
+        return undefined;
+      }
+      if (Date.now() - entry.timestamp > this.cacheConfig.ttl) {
+        this.textCache.delete(key);
+        this.cacheStats.misses++;
+        return undefined;
+      }
+      this.cacheStats.hits++;
+      return entry.result;
+    },
+
+    setCachedResult(key, result) {
+      if (this.textCache.size >= this.cacheConfig.maxSize) {
+        this._evictOldest();
+      }
+      this.textCache.set(key, { result, timestamp: Date.now() });
+    },
+
+    _evictOldest() {
+      const evictCount = Math.max(
+        1,
+        Math.floor(this.cacheConfig.maxSize * this.cacheConfig.evictionRatio)
+      );
+      let removed = 0;
+      for (const key of this.textCache.keys()) {
+        if (removed >= evictCount) break;
+        this.textCache.delete(key);
+        removed++;
+      }
+    },
+
+    clearCache() {
+      this.textCache.clear();
+      this.cacheStats = { hits: 0, misses: 0 };
+    },
+
+    getCacheStats() {
+      const total = this.cacheStats.hits + this.cacheStats.misses;
+      const hitRate = total > 0 ? ((this.cacheStats.hits / total) * 100).toFixed(1) : '0';
+      return {
+        size: this.textCache.size,
+        hits: this.cacheStats.hits,
+        misses: this.cacheStats.misses,
+        total,
+        hitRate: `${hitRate}%`,
+      };
+    },
+
     detect(text) {
-      return LanguageDetector.detect(text);
+      if (!text || text.length < Config.detection.minLength) return null;
+      if (this.selectedLanguages.length === 0) return true;
+
+      const key = this.createCacheKey(text, this.selectedLanguages, this.strictMode);
+      const cached = this.getCachedResult(key);
+      if (cached !== undefined) return cached;
+
+      const result = LanguageDetector.detect(text, this.selectedLanguages);
+      this.setCachedResult(key, result);
+      return result;
     },
   };
 
