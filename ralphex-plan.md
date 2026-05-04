@@ -119,15 +119,15 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] Commit
 
 ### Task 7: Polish + installation docs
-- [ ] Replace bare `display:none` with CSS transitions (opacity + max-height) — less jarring
-- [ ] Verify behaviour against the YouTube mobile layout (`m.youtube.com`) — extend selectors if needed
-- [ ] Add `e2e/fixtures/youtube-mobile.html` plus `e2e/fixtures/mobile.spec.js` covering the mobile selectors
-- [ ] Add an `e2e/live/mobile.spec.js` that navigates to `https://m.youtube.com` with a mobile user-agent and confirms the script loads
-- [ ] Run `npm run e2e:live` once and confirm both desktop and mobile live tests pass
-- [ ] Write `README.md`: what it does, install steps for macOS Safari + Userscripts app, install steps for iOS/iPadOS, debugging via Web Inspector, known limitations, link to the original Chrome extension
-- [ ] Bump `@version` in the metadata block to `1.0.0`
-- [ ] `npm run check` passes
-- [ ] Commit
+- [x] Replace bare `display:none` with CSS transitions (opacity + max-height) — less jarring
+- [x] Verify behaviour against the YouTube mobile layout (`m.youtube.com`) — extend selectors if needed
+- [x] Add `e2e/fixtures/youtube-mobile.html` plus `e2e/fixtures/mobile.spec.js` covering the mobile selectors
+- [x] Add an `e2e/live/mobile.spec.js` that navigates to `https://m.youtube.com` with a mobile user-agent and confirms the script loads
+- [x] Run `npm run e2e:live` once and confirm both desktop and mobile live tests pass
+- [x] Write `README.md`: what it does, install steps for macOS Safari + Userscripts app, install steps for iOS/iPadOS, debugging via Web Inspector, known limitations, link to the original Chrome extension
+- [x] Bump `@version` in the metadata block to `1.0.0`
+- [x] `npm run check` passes
+- [x] Commit
 
 ## Constraints
 

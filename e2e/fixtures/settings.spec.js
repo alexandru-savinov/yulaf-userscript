@@ -27,7 +27,9 @@ test('seeded selectedLanguages=[ru] inverts the hide pattern after reload', asyn
     for (const el of document.querySelectorAll('[data-lang]')) {
       const lang = el.getAttribute('data-lang');
       const isHidden =
-        el.style.display === 'none' || el.hasAttribute('data-language-filter-hidden');
+        el.style.display === 'none' ||
+        el.hasAttribute('data-language-filter-hidden') ||
+        el.classList.contains('yulaf-hidden');
       out[lang] = out[lang] || { hidden: 0, visible: 0 };
       if (isHidden) out[lang].hidden++;
       else out[lang].visible++;
@@ -76,7 +78,10 @@ test('disabling the filter via the panel checkbox reveals every item and persist
 
   await page.waitForFunction(() => {
     return Array.from(document.querySelectorAll('[data-lang]')).every(
-      (el) => el.style.display !== 'none'
+      (el) =>
+        !el.hasAttribute('data-language-filter-hidden') &&
+        !el.classList.contains('yulaf-hidden') &&
+        el.style.display !== 'none'
     );
   });
 

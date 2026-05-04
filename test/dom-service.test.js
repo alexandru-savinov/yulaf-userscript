@@ -46,10 +46,10 @@ describe('DOMService', () => {
     expect(text).toBe('');
   });
 
-  it('hideElement sets display:none and the hidden data attribute', () => {
+  it('hideElement adds the yulaf-hidden class and the hidden data attribute', () => {
     const el = document.getElementById('r1');
     DOMService.hideElement(el, 'video');
-    expect(el.style.display).toBe('none');
+    expect(el.classList.contains('yulaf-hidden')).toBe(true);
     expect(el.getAttribute(DATA_HIDDEN)).toBe('video');
     expect(DOMService.isHidden(el)).toBe(true);
   });
@@ -58,9 +58,18 @@ describe('DOMService', () => {
     const el = document.getElementById('r2');
     DOMService.hideElement(el, 'video');
     DOMService.showElement(el);
-    expect(el.style.display).toBe('');
+    expect(el.classList.contains('yulaf-hidden')).toBe(false);
     expect(el.hasAttribute(DATA_HIDDEN)).toBe(false);
     expect(DOMService.isHidden(el)).toBe(false);
+  });
+
+  it('hideElement injects the transition stylesheet once', () => {
+    const before = document.querySelectorAll('style[data-yulaf-hide]').length;
+    DOMService.hideElement(document.getElementById('r1'), 'video');
+    DOMService.hideElement(document.getElementById('r2'), 'video');
+    const after = document.querySelectorAll('style[data-yulaf-hide]').length;
+    expect(after).toBeLessThanOrEqual(before + 1);
+    expect(after).toBeGreaterThanOrEqual(1);
   });
 
   it('isHidden is false for fresh elements', () => {
