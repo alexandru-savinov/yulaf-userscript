@@ -63,13 +63,13 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] Commit
 
 ### Task 2: Port constants, config, and DOM service
-- [ ] Port the constants from `original/src/common/constants.js` inline (language list, debounce values, default selected languages)
-- [ ] Port the config from `original/src/common/config.js` inline (DOM selectors, language metadata: code, name, native name, flag/icon)
-- [ ] Port `original/src/content/services/dom-service.js` as a `DOMService` object inside `yulaf.user.js` (extractText, hideElement, showElement, getAllElements, isHidden)
-- [ ] Wire all ported modules into the `module.exports` shim from Task 1
-- [ ] `test/dom-service.test.js` — covers extractText (returns trimmed text from the title selector), hideElement / showElement / isHidden round-trip, getAllElements returns the expected count from a fixture DOM
-- [ ] `npm run check` passes
-- [ ] Commit
+- [x] Port the constants from `original/src/common/constants.js` inline (language list, debounce values, default selected languages)
+- [x] Port the config from `original/src/common/config.js` inline (DOM selectors, language metadata: code, name, native name, flag/icon)
+- [x] Port `original/src/content/services/dom-service.js` as a `DOMService` object inside `yulaf.user.js` (extractText, hideElement, showElement, getAllElements, isHidden)
+- [x] Wire all ported modules into the `module.exports` shim from Task 1
+- [x] `test/dom-service.test.js` — covers extractText (returns trimmed text from the title selector), hideElement / showElement / isHidden round-trip, getAllElements returns the expected count from a fixture DOM
+- [x] `npm run check` passes
+- [x] Commit
 
 ### Task 3: Port character-set detector and caching language service
 - [ ] Port `original/src/content/services/language-detector.js` character-set regex validators (CJK, Cyrillic, Arabic, Devanagari, Hebrew, Thai, etc.) and exclusion patterns. Keep the regex behaviour byte-identical where reasonable.
