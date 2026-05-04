@@ -72,12 +72,12 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] Commit
 
 ### Task 3: Port character-set detector and caching language service
-- [ ] Port `original/src/content/services/language-detector.js` character-set regex validators (CJK, Cyrillic, Arabic, Devanagari, Hebrew, Thai, etc.) and exclusion patterns. Keep the regex behaviour byte-identical where reasonable.
-- [ ] Port `original/src/content/services/language-service.js` caching layer (Map with size cap; LRU not strictly required but document the eviction strategy in a one-line comment)
-- [ ] `test/language-detector.test.js` — at least one positive and one negative title per script family ported. Edge cases: empty string, whitespace-only, mixed-script titles.
-- [ ] `test/language-service.test.js` — cache hit returns identical reference, cache eviction at size cap, cache key normalisation
-- [ ] `npm run check` passes
-- [ ] Commit
+- [x] Port `original/src/content/services/language-detector.js` character-set regex validators (CJK, Cyrillic, Arabic, Devanagari, Hebrew, Thai, etc.) and exclusion patterns. Keep the regex behaviour byte-identical where reasonable.
+- [x] Port `original/src/content/services/language-service.js` caching layer (Map with size cap; LRU not strictly required but document the eviction strategy in a one-line comment)
+- [x] `test/language-detector.test.js` — at least one positive and one negative title per script family ported. Edge cases: empty string, whitespace-only, mixed-script titles.
+- [x] `test/language-service.test.js` — cache hit returns identical reference, cache eviction at size cap, cache key normalisation
+- [x] `npm run check` passes
+- [x] Commit
 
 ### Task 4: Add trigram detector for Latin-alphabet languages
 - [ ] Generate trigram frequency tables for at least: `en`, `es`, `fr`, `de`, `tr`, `pt`, `it`, `nl`. Embed inline in the userscript (no runtime fetch).
