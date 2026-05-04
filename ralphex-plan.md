@@ -35,32 +35,32 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 ## Tasks
 
 ### Task 1: Bootstrap userscript + feedback loop tooling
-- [ ] Create `yulaf.user.js` at repo root with a complete userscript metadata block (`@name`, `@namespace`, `@version 0.1.0`, `@description`, `@author`, `@match https://*.youtube.com/*`, `@match https://m.youtube.com/*`, `@grant GM_getValue`, `@grant GM_setValue`, `@grant GM_addStyle`, `@run-at document-start`)
-- [ ] Wrap the script body in an IIFE; add a `DEBUG` flag and `log()` helper prefixing `[YuLaF]`
-- [ ] Add a build-time export shim: when `typeof module !== 'undefined' && module.exports`, expose internals (`DOMService`, `LanguageDetector`, `LanguageService`, `FilterService`, `Controller`, `Config`, `Constants`) on `module.exports` so vitest can require them. The shim must be a no-op in the real userscript runtime.
-- [ ] `npm init -y`, then add devDependencies: `vitest`, `jsdom`, `@playwright/test`, `eslint`
-- [ ] Run `npx playwright install chromium` once during setup so e2e tests can launch the browser
-- [ ] `eslint.config.js` — minimal flat config: ESM, browser globals + `GM_*` globals declared, `no-unused-vars` warn, `no-undef` error
-- [ ] `vitest.config.js` — `environment: 'jsdom'`, `include: ['test/**/*.test.js']`
-- [ ] `playwright.config.js` — declare two projects:
+- [x] Create `yulaf.user.js` at repo root with a complete userscript metadata block (`@name`, `@namespace`, `@version 0.1.0`, `@description`, `@author`, `@match https://*.youtube.com/*`, `@match https://m.youtube.com/*`, `@grant GM_getValue`, `@grant GM_setValue`, `@grant GM_addStyle`, `@run-at document-start`)
+- [x] Wrap the script body in an IIFE; add a `DEBUG` flag and `log()` helper prefixing `[YuLaF]`
+- [x] Add a build-time export shim: when `typeof module !== 'undefined' && module.exports`, expose internals (`DOMService`, `LanguageDetector`, `LanguageService`, `FilterService`, `Controller`, `Config`, `Constants`) on `module.exports` so vitest can require them. The shim must be a no-op in the real userscript runtime.
+- [x] `npm init -y`, then add devDependencies: `vitest`, `jsdom`, `@playwright/test`, `eslint`
+- [x] Run `npx playwright install chromium` once during setup so e2e tests can launch the browser
+- [x] `eslint.config.js` — minimal flat config: ESM, browser globals + `GM_*` globals declared, `no-unused-vars` warn, `no-undef` error
+- [x] `vitest.config.js` — `environment: 'jsdom'`, `include: ['test/**/*.test.js']`
+- [x] `playwright.config.js` — declare two projects:
   - `fixtures` — runs `e2e/fixtures/**/*.spec.js` against local `file://` HTML, headless Chromium, fast, deterministic. Part of `npm run check`.
   - `live` — runs `e2e/live/**/*.spec.js` against `https://www.youtube.com`, headless Chromium, longer timeouts, retries. Excluded from `npm run check`; run via `npm run e2e:live`.
-- [ ] `e2e/_helpers/inject.js` — shared helper that, given a Playwright `page`:
+- [x] `e2e/_helpers/inject.js` — shared helper that, given a Playwright `page`:
   1. Stubs `GM_getValue` / `GM_setValue` / `GM_addStyle` on the page via `addInitScript`, backed by an in-memory map exposed for the test to seed
   2. Injects `yulaf.user.js` source via `addInitScript` (read from disk, wrap in IIFE)
   3. Returns a handle for the test to inspect (e.g. read/write GM storage from the test side)
-- [ ] `e2e/fixtures/youtube-home.html` — a static HTML page containing a handful of fake `ytd-rich-item-renderer` / `ytd-video-renderer` elements with mixed-language `#video-title` text (English, Russian, Japanese, Turkish — at least 2 of each). Match the real YouTube selectors closely enough that `original/src/common/config.js` selectors find them.
-- [ ] `e2e/fixtures/home.spec.js` — Playwright test that loads the fixture, injects the userscript, waits for `data-yulaf-processed`, and asserts the (initially trivial) wiring round-trip works. Real filter assertions land in Task 5.
-- [ ] `e2e/live/home.spec.js` — Playwright test that navigates to `https://www.youtube.com`, dismisses the cookie banner if present, injects the userscript, waits for at least one `ytd-rich-item-renderer` to render, and asserts the script loaded without throwing. Tagged `@live`. Skipped in `check` via the project filter.
-- [ ] `package.json` scripts:
+- [x] `e2e/fixtures/youtube-home.html` — a static HTML page containing a handful of fake `ytd-rich-item-renderer` / `ytd-video-renderer` elements with mixed-language `#video-title` text (English, Russian, Japanese, Turkish — at least 2 of each). Match the real YouTube selectors closely enough that `original/src/common/config.js` selectors find them.
+- [x] `e2e/fixtures/home.spec.js` — Playwright test that loads the fixture, injects the userscript, waits for `data-yulaf-processed`, and asserts the (initially trivial) wiring round-trip works. Real filter assertions land in Task 5.
+- [x] `e2e/live/home.spec.js` — Playwright test that navigates to `https://www.youtube.com`, dismisses the cookie banner if present, injects the userscript, waits for at least one `ytd-rich-item-renderer` to render, and asserts the script loaded without throwing. Tagged `@live`. Skipped in `check` via the project filter.
+- [x] `package.json` scripts:
   - `"check": "node --check yulaf.user.js && eslint yulaf.user.js && vitest run && playwright test --project=fixtures"`
   - `"test": "vitest run"`
   - `"e2e": "playwright test --project=fixtures"`
   - `"e2e:live": "playwright test --project=live"`
-- [ ] Add `.gitignore` entries: `node_modules/`, `playwright-report/`, `test-results/`
-- [ ] At end of task: stub the userscript body with a no-op controller that just sets `data-yulaf-processed` on every matching element so e2e tests have something to verify wiring against. Real filtering comes in later tasks.
-- [ ] `npm run check` passes
-- [ ] Commit
+- [x] Add `.gitignore` entries: `node_modules/`, `playwright-report/`, `test-results/`
+- [x] At end of task: stub the userscript body with a no-op controller that just sets `data-yulaf-processed` on every matching element so e2e tests have something to verify wiring against. Real filtering comes in later tasks.
+- [x] `npm run check` passes
+- [x] Commit
 
 ### Task 2: Port constants, config, and DOM service
 - [ ] Port the constants from `original/src/common/constants.js` inline (language list, debounce values, default selected languages)
