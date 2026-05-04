@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YuLaF fixture — dynamic load</title>
+  </head>
+  <body>
+    <ytd-app>
+      <div id="contents"></div>
+    </ytd-app>
+    <script>
+      // Simulate YouTube's lazy hydration: inject items 500ms after load.
+      setTimeout(function () {
+        var contents = document.getElementById('contents');
+        var items = [
+          { lang: 'en', vid: 'en-late-1', title: 'Late-loaded English video about web development' },
+          { lang: 'ru', vid: 'ru-late-1', title: 'Лучшие фильмы прошлого года' },
+          { lang: 'ja', vid: 'ja-late-1', title: '日本語のタイトルのサンプル動画' },
+          { lang: 'en', vid: 'en-late-2', title: 'Another English-language tutorial for beginners' },
+        ];
+        items.forEach(function (item) {
+          var el = document.createElement('ytd-rich-item-renderer');
+          el.setAttribute('data-lang', item.lang);
+          el.innerHTML =
+            '<a id="video-title" href="/watch?v=' + item.vid + '">' + item.title + '</a>';
+          contents.appendChild(el);
+        });
+      }, 500);
+    </script>
+  </body>
+</html>

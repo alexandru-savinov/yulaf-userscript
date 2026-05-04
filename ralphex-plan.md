@@ -96,16 +96,16 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] **Note**: previous attempts at this task tripped Anthropic content-filter false-positives when generating long multilingual corpus text inline. Vendoring `franc-min`'s prebuilt data avoids that entirely. Do not regenerate corpora; do not paste long blocks of non-English text into your assistant output.
 
 ### Task 5: Port filter service and main controller
-- [ ] Port `original/src/content/services/filter-service.js` as a `FilterService` (processElement, filterContent, processNewNode, shouldHide)
-- [ ] Port `original/src/content/index.js` main controller: MutationObserver setup, `history.pushState` / `replaceState` patching, URL-change detection, debounced re-filter
-- [ ] Hardcode `selectedLanguages: ['en']` for now — user-configurable storage lands in Task 6
-- [ ] Expose `window.YuLaF = { filter, config, version }` for in-page debugging
-- [ ] `test/filter-service.test.js` — hides when language not in allowlist, shows when language IS in allowlist, idempotent on already-processed elements, MutationObserver picks up newly-added nodes
-- [ ] Extend `e2e/fixtures/home.spec.js`: assert English items stay visible and non-English items end up hidden (display:none or `aria-hidden`, whichever the port chose) on the fixture page
-- [ ] Add `e2e/fixtures/dynamic-load.spec.js` — fixture starts empty, JS injects new video items 500ms later, assert the MutationObserver picks them up and filters correctly
-- [ ] Run `npm run e2e:live` once and confirm the script loads on real youtube.com without errors. If selectors need tweaking for the live site, do that here.
-- [ ] `npm run check` passes — this is the first task where e2e tests exercise real filter behaviour end-to-end
-- [ ] Commit
+- [x] Port `original/src/content/services/filter-service.js` as a `FilterService` (processElement, filterContent, processNewNode, shouldHide)
+- [x] Port `original/src/content/index.js` main controller: MutationObserver setup, `history.pushState` / `replaceState` patching, URL-change detection, debounced re-filter
+- [x] Hardcode `selectedLanguages: ['en']` for now — user-configurable storage lands in Task 6
+- [x] Expose `window.YuLaF = { filter, config, version }` for in-page debugging
+- [x] `test/filter-service.test.js` — hides when language not in allowlist, shows when language IS in allowlist, idempotent on already-processed elements, MutationObserver picks up newly-added nodes
+- [x] Extend `e2e/fixtures/home.spec.js`: assert English items stay visible and non-English items end up hidden (display:none or `aria-hidden`, whichever the port chose) on the fixture page
+- [x] Add `e2e/fixtures/dynamic-load.spec.js` — fixture starts empty, JS injects new video items 500ms later, assert the MutationObserver picks them up and filters correctly
+- [x] Run `npm run e2e:live` once and confirm the script loads on real youtube.com without errors. If selectors need tweaking for the live site, do that here.
+- [x] `npm run check` passes — this is the first task where e2e tests exercise real filter behaviour end-to-end
+- [x] Commit
 
 ### Task 6: Inject settings UI + persistence
 - [ ] Floating toggle button anchored bottom-right, z-index above YouTube chrome but below modals. Min 44×44 px touch target. Visual ON/OFF state.

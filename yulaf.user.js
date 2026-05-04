@@ -619,33 +619,308 @@
     },
   };
 
-  // ── FilterService (stub — Task 5) ──────────────────────────────────────────
+  // ── FilterService ──────────────────────────────────────────────────────────
+  // Hides YouTube video/channel elements whose detected title language is not in
+  // the selected set. Each element carries DATA_ATTR.CHECKED + DATA_ATTR.LANG so
+  // we can skip already-processed nodes, plus DATA_ATTR.VERSION so a later pass
+  // can supersede a still-pending earlier one.
   const FilterService = {
-    process(el) {
-      el.setAttribute(DATA_ATTR.PROCESSED, '1');
+    processingElements: new WeakSet(),
+    _loggedTexts: new Set(),
+    _retryTimers: new WeakMap(),
+
+    filterContent(settings) {
+      if (!settings) return;
+      if (settings.hideVideos) this._filterElementType('video', settings);
+      if (settings.hideChannels) this._filterElementType('channel', settings);
+    },
+
+    _filterElementType(type, settings) {
+      const elements = DOMService.getAllElements(type);
+      for (const el of elements) this.processElement(el, type, settings);
+    },
+
+    processElement(element, type, settings) {
+      if (this.processingElements.has(element)) return;
+
+      const currentLang = [...LanguageService.selectedLanguages].sort().join(',');
+      const lastCheckedLang = element.getAttribute(DATA_ATTR.LANG);
+      if (element.hasAttribute(DATA_ATTR.CHECKED) && lastCheckedLang === currentLang) return;
+
+      this.processingElements.add(element);
+      const processingVersion =
+        parseInt(element.getAttribute(DATA_ATTR.VERSION) || '0', 10) + 1;
+      element.setAttribute(DATA_ATTR.VERSION, String(processingVersion));
+      element.setAttribute(DATA_ATTR.CHECKED, 'true');
+      element.setAttribute(DATA_ATTR.LANG, currentLang);
+      element.setAttribute(DATA_ATTR.PROCESSED, '1');
+
+      DOMService.hideElement(element, type);
+
+      const text = DOMService.extractText(element, type).trim();
+
+      if (!text) {
+        // Title may not have streamed in yet — schedule one retry, then default to show.
+        const prev = this._retryTimers.get(element);
+        if (prev) clearTimeout(prev);
+        const timer = setTimeout(() => {
+          this._retryTimers.delete(element);
+          this.processingElements.delete(element);
+          if (!element.isConnected) return;
+          if (parseInt(element.getAttribute(DATA_ATTR.VERSION) || '0', 10) !== processingVersion) {
+            return;
+          }
+          const retryText = DOMService.extractText(element, type).trim();
+          if (retryText) {
+            this._applyDecision(element, type, retryText, settings, processingVersion);
+          } else {
+            // No text after retry — show to avoid hiding everything.
+            DOMService.showElement(element);
+          }
+        }, Constants.TIMING.TEXT_EXTRACT_RETRY);
+        this._retryTimers.set(element, timer);
+        return;
+      }
+
+      try {
+        this._applyDecision(element, type, text, settings, processingVersion);
+      } finally {
+        this.processingElements.delete(element);
+      }
+    },
+
+    _applyDecision(element, type, text, settings, processingVersion) {
+      if (parseInt(element.getAttribute(DATA_ATTR.VERSION) || '0', 10) !== processingVersion) {
+        return;
+      }
+      // Bail if the controller has been disabled mid-flight.
+      if (settings && settings.enabled === false) {
+        DOMService.showElement(element);
+        return;
+      }
+
+      const isTarget = LanguageService.detect(text);
+
+      const logKey = text.substring(0, Constants.DETECTION.LOG_KEY_MAX_LENGTH);
+      if (!this._loggedTexts.has(logKey)) {
+        if (this._loggedTexts.size > Constants.LIMITS.LOGGED_TEXTS_MAX) {
+          const evict = Math.ceil(this._loggedTexts.size * Constants.CACHE.EVICTION_RATIO);
+          let removed = 0;
+          for (const k of this._loggedTexts) {
+            if (removed >= evict) break;
+            this._loggedTexts.delete(k);
+            removed++;
+          }
+        }
+        this._loggedTexts.add(logKey);
+        log(isTarget ? '✓ SHOW:' : '✗ HIDE:', logKey);
+      }
+
+      // detect() returns true|false|null. Show on true OR null (low-confidence default-show).
+      if (isTarget !== false) {
+        DOMService.showElement(element);
+      }
+    },
+
+    _isAd(el) {
+      const adSel = 'ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer';
+      return el.matches(adSel) || el.closest(adSel);
+    },
+
+    _processNodeType(node, selectors, type, settings) {
+      if (selectors.some((sel) => node.matches(sel))) {
+        this.processElement(node, type, settings);
+      }
+      if (node.querySelectorAll) {
+        node.querySelectorAll(selectors.join(',')).forEach((el) => {
+          if (!this._isAd(el)) this.processElement(el, type, settings);
+        });
+      }
+    },
+
+    processNewNode(node, settings) {
+      if (!node || !node.matches || !settings) return;
+      if (this._isAd(node)) return;
+      if (settings.hideVideos) this._processNodeType(node, Config.selectors.video, 'video', settings);
+      if (settings.hideChannels) this._processNodeType(node, Config.selectors.channel, 'channel', settings);
     },
   };
 
-  // ── Controller — minimal wiring stub for Task 1 e2e round-trip ─────────────
+  // ── Controller ─────────────────────────────────────────────────────────────
+  // MutationObserver-driven controller. Watches for new YouTube items, debounces
+  // SPA URL changes (history.pushState/replaceState patching + popstate), and
+  // triggers re-filter cycles. Hardcoded to ['en'] for now — Task 6 adds the
+  // settings UI and GM_* persistence.
   const Controller = {
+    settings: null,
+    observer: null,
+    popstateHandler: null,
+    originalPushState: null,
+    originalReplaceState: null,
+    filterTimeout: null,
+    urlChangeTimer: null,
+    lastUrl: '',
+    filteringActive: false,
+
     init() {
-      const run = () => {
-        for (const el of DOMService.getAllElements('video')) {
-          FilterService.process(el);
+      const d = Constants.DEFAULTS;
+      this.settings = {
+        enabled: d.enabled,
+        strictMode: d.strictMode,
+        hideVideos: d.hideVideos,
+        hideChannels: d.hideChannels,
+        selectedLanguages: [...d.selectedLanguages],
+      };
+      LanguageService.setLanguages(this.settings.selectedLanguages);
+      LanguageService.setStrictMode(this.settings.strictMode);
+      this.lastUrl = typeof location !== 'undefined' ? window.location.href : '';
+
+      if (this.settings.enabled) this.start();
+      log('controller initialised', this.settings);
+    },
+
+    get enabled() {
+      return !!(this.settings && this.settings.enabled);
+    },
+
+    start() {
+      if (!this.enabled) return;
+      if (!this.filteringActive) {
+        this.filteringActive = true;
+        this._patchHistory();
+        if (document.body) {
+          this._setupObservers();
+        } else {
+          document.addEventListener('DOMContentLoaded', () => this._setupObservers(), { once: true });
         }
+      }
+      this._runFilterCycle();
+    },
+
+    stop() {
+      this.filteringActive = false;
+      this._cleanupObservers();
+      this._unpatchHistory();
+      DOMService.showAllHiddenContent();
+      LanguageService.clearCache();
+    },
+
+    _runFilterCycle() {
+      if (this.filterTimeout) clearTimeout(this.filterTimeout);
+      const run = () => {
+        if (this.enabled) FilterService.filterContent(this.settings);
       };
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', run, { once: true });
       } else {
-        run();
+        this.filterTimeout = setTimeout(run, Config.timing.filterDelay);
       }
-      log('controller initialised');
+    },
+
+    _setupObservers() {
+      this._cleanupObservers();
+      const target = document.body || document.documentElement;
+      if (!target || typeof MutationObserver === 'undefined') return;
+
+      this.observer = new MutationObserver((mutations) => {
+        if (!this.enabled) return;
+
+        if (window.location.href !== this.lastUrl) {
+          this.lastUrl = window.location.href;
+          this._clearMarkers();
+          if (this.urlChangeTimer) clearTimeout(this.urlChangeTimer);
+          this.urlChangeTimer = setTimeout(() => {
+            this.urlChangeTimer = null;
+            if (this.enabled && window.location.href === this.lastUrl) {
+              FilterService.filterContent(this.settings);
+            }
+          }, Config.timing.urlChangeDelay);
+          return;
+        }
+
+        for (const m of mutations) {
+          for (const node of m.addedNodes || []) {
+            if (node.nodeType === 1 /* ELEMENT_NODE */) {
+              FilterService.processNewNode(node, this.settings);
+            }
+          }
+        }
+      });
+      this.observer.observe(target, { childList: true, subtree: true });
+
+      this.popstateHandler = () => {
+        if (!this.enabled) return;
+        this._clearMarkers();
+        setTimeout(() => {
+          if (this.enabled) FilterService.filterContent(this.settings);
+        }, Config.timing.filterDelay);
+      };
+      window.addEventListener('popstate', this.popstateHandler);
+    },
+
+    _cleanupObservers() {
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
+      if (this.popstateHandler) {
+        window.removeEventListener('popstate', this.popstateHandler);
+        this.popstateHandler = null;
+      }
+    },
+
+    _wrapHistoryMethod(name) {
+      if (typeof window === 'undefined' || !window.history) return null;
+      const original = window.history[name];
+      const self = this;
+      window.history[name] = function (...args) {
+        const ret = original.apply(this, args);
+        if (self.enabled) {
+          self._clearMarkers();
+          setTimeout(
+            () => FilterService.filterContent(self.settings),
+            Config.timing.filterDelay
+          );
+        }
+        return ret;
+      };
+      return original;
+    },
+
+    _patchHistory() {
+      if (this.originalPushState || typeof window === 'undefined' || !window.history) return;
+      this.originalPushState = this._wrapHistoryMethod('pushState');
+      this.originalReplaceState = this._wrapHistoryMethod('replaceState');
+    },
+
+    _unpatchHistory() {
+      if (typeof window === 'undefined' || !window.history) return;
+      if (this.originalPushState) {
+        window.history.pushState = this.originalPushState;
+        this.originalPushState = null;
+      }
+      if (this.originalReplaceState) {
+        window.history.replaceState = this.originalReplaceState;
+        this.originalReplaceState = null;
+      }
+    },
+
+    _clearMarkers() {
+      document.querySelectorAll(`[${DATA_ATTR.CHECKED}]`).forEach((el) => {
+        el.removeAttribute(DATA_ATTR.CHECKED);
+        el.removeAttribute(DATA_ATTR.LANG);
+      });
+      FilterService._loggedTexts.clear();
     },
   };
 
   // Expose for in-page debugging
   if (typeof window !== 'undefined') {
-    window.YuLaF = { version: Constants.VERSION, Config };
+    window.YuLaF = {
+      version: Constants.VERSION,
+      Config,
+      filter: Controller,
+    };
   }
 
   // Auto-start in real userscript runtime; stays inert when loaded as a CommonJS module for tests.

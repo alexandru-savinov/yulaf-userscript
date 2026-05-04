@@ -21,6 +21,15 @@ export function loadUserscript({ window: providedWindow } = {}) {
     document: win ? win.document : globalThis.document,
     module: { exports: {} },
     console,
+    setTimeout: globalThis.setTimeout,
+    clearTimeout: globalThis.clearTimeout,
+    setInterval: globalThis.setInterval,
+    clearInterval: globalThis.clearInterval,
+    Date: globalThis.Date,
+    Map: globalThis.Map,
+    Set: globalThis.Set,
+    WeakMap: globalThis.WeakMap,
+    WeakSet: globalThis.WeakSet,
   };
   if (typeof globalThis.MutationObserver !== 'undefined') {
     sandbox.MutationObserver = globalThis.MutationObserver;
