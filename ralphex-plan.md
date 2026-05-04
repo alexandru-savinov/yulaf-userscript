@@ -108,15 +108,15 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] Commit
 
 ### Task 6: Inject settings UI + persistence
-- [ ] Floating toggle button anchored bottom-right, z-index above YouTube chrome but below modals. Min 44×44 px touch target. Visual ON/OFF state.
-- [ ] Tap toggle → expand settings panel: language picker grid (flag + name, multi-select), strict-mode toggle, "show all" / "hide all" shortcuts. Tap outside or swipe-down to dismiss.
-- [ ] Persist via `GM_getValue` / `GM_setValue`: `selectedLanguages` (array of codes), `enabled` (bool), `strictMode` (bool). Load on startup, save on every change.
-- [ ] Inject styles via `GM_addStyle`, scoped under a `.yulaf-` class prefix
-- [ ] Replace the Task-5 hardcoded `['en']` with the loaded value
-- [ ] `test/settings.test.js` — defaults when storage empty, round-trip save/load, change events trigger re-filter
-- [ ] `e2e/fixtures/settings.spec.js` — flip `selectedLanguages` to `['ru']` via the GM_setValue stub, reload, assert the inverse hide pattern; also exercise the toggle button (click → script disables, items show)
-- [ ] `npm run check` passes
-- [ ] Commit
+- [x] Floating toggle button anchored bottom-right, z-index above YouTube chrome but below modals. Min 44×44 px touch target. Visual ON/OFF state.
+- [x] Tap toggle → expand settings panel: language picker grid (flag + name, multi-select), strict-mode toggle, "show all" / "hide all" shortcuts. Tap outside or swipe-down to dismiss.
+- [x] Persist via `GM_getValue` / `GM_setValue`: `selectedLanguages` (array of codes), `enabled` (bool), `strictMode` (bool). Load on startup, save on every change.
+- [x] Inject styles via `GM_addStyle`, scoped under a `.yulaf-` class prefix
+- [x] Replace the Task-5 hardcoded `['en']` with the loaded value
+- [x] `test/settings.test.js` — defaults when storage empty, round-trip save/load, change events trigger re-filter
+- [x] `e2e/fixtures/settings.spec.js` — flip `selectedLanguages` to `['ru']` via the GM_setValue stub, reload, assert the inverse hide pattern; also exercise the toggle button (click → script disables, items show)
+- [x] `npm run check` passes
+- [x] Commit
 
 ### Task 7: Polish + installation docs
 - [ ] Replace bare `display:none` with CSS transitions (opacity + max-height) — less jarring
