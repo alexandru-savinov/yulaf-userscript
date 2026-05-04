@@ -1,0 +1,21 @@
+{
+  "name": "yulaf-userscript",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "YuLaF — YouTube Language Filter, Safari Userscripts port.",
+  "scripts": {
+    "check": "node --check yulaf.user.js && eslint yulaf.user.js && vitest run && playwright test --project=fixtures",
+    "test": "vitest run",
+    "lint": "eslint yulaf.user.js",
+    "e2e": "playwright test --project=fixtures",
+    "e2e:live": "playwright test --project=live"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
+  }
+}
