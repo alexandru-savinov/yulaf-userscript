@@ -746,11 +746,271 @@
     },
   };
 
+  // ── SettingsService ────────────────────────────────────────────────────────
+  // Persists user preferences via GM_getValue / GM_setValue. Falls back to
+  // Constants.DEFAULTS when the GM bridge is missing (e.g. unit tests / vm).
+  const SettingsService = {
+    KEYS: ['enabled', 'strictMode', 'hideVideos', 'hideChannels', 'selectedLanguages'],
+    _listeners: new Set(),
+
+    _gmGet(key, fallback) {
+      if (typeof GM_getValue === 'function') {
+        try { return GM_getValue(key, fallback); } catch (e) { log('GM_getValue', e); }
+      }
+      return fallback;
+    },
+
+    _gmSet(key, value) {
+      if (typeof GM_setValue === 'function') {
+        try { GM_setValue(key, value); } catch (e) { log('GM_setValue', e); }
+      }
+    },
+
+    load() {
+      const d = Constants.DEFAULTS;
+      const known = Object.keys(Config.languages);
+      const rawLangs = this._gmGet('selectedLanguages', d.selectedLanguages);
+      const langs = Array.isArray(rawLangs)
+        ? rawLangs.filter((c) => known.includes(c))
+        : [];
+      return {
+        enabled: this._gmGet('enabled', d.enabled) !== false,
+        strictMode: this._gmGet('strictMode', d.strictMode) === true,
+        hideVideos: this._gmGet('hideVideos', d.hideVideos) !== false,
+        hideChannels: this._gmGet('hideChannels', d.hideChannels) !== false,
+        selectedLanguages: langs.length > 0 ? langs : [...d.selectedLanguages],
+      };
+    },
+
+    save(updates) {
+      for (const k of Object.keys(updates)) {
+        if (this.KEYS.includes(k)) this._gmSet(k, updates[k]);
+      }
+      for (const fn of this._listeners) {
+        try { fn(updates); } catch (e) { log('settings listener', e); }
+      }
+    },
+
+    subscribe(fn) {
+      this._listeners.add(fn);
+      return () => this._listeners.delete(fn);
+    },
+  };
+
+  // ── SettingsUI ─────────────────────────────────────────────────────────────
+  // Floating toggle button + collapsible settings panel. Touch targets ≥ 44×44.
+  // Styles are injected via GM_addStyle and scoped under `.yulaf-` to avoid
+  // colliding with YouTube's own classes.
+  const SettingsUI = {
+    root: null,
+    toggleBtn: null,
+    panel: null,
+    _styled: false,
+    _outsideHandler: null,
+
+    _css: `
+      .yulaf-root { all: initial; position: fixed; right: 12px; bottom: 12px;
+        z-index: 2147483600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .yulaf-toggle { all: unset; box-sizing: border-box; display: flex;
+        align-items: center; justify-content: center; width: 48px; height: 48px;
+        border-radius: 24px; background: #cc0000; color: #fff; font-size: 22px;
+        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.35); user-select: none;
+        text-align: center; }
+      .yulaf-toggle.yulaf-off { background: #555; }
+      .yulaf-panel { display: none; position: absolute; right: 0; bottom: 60px;
+        width: 320px; max-height: 70vh; overflow-y: auto; padding: 12px;
+        background: #fff; color: #111; border-radius: 8px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.3); }
+      .yulaf-panel.yulaf-open { display: block; }
+      .yulaf-row { display: flex; align-items: center; justify-content: space-between;
+        margin: 6px 0; min-height: 44px; }
+      .yulaf-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+      .yulaf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+      .yulaf-lang { display: flex; align-items: center; gap: 6px; padding: 8px;
+        min-height: 44px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;
+        font-size: 14px; background: #fafafa; }
+      .yulaf-lang.yulaf-selected { background: #e6f4ff; border-color: #1677ff; }
+      .yulaf-lang input { margin: 0; }
+      .yulaf-actions { display: flex; gap: 8px; margin-top: 10px; }
+      .yulaf-btn { all: unset; flex: 1; text-align: center; padding: 10px;
+        min-height: 44px; min-width: 44px; box-sizing: border-box;
+        border-radius: 6px; background: #f0f0f0; color: #111; cursor: pointer;
+        border: 1px solid #ccc; font-size: 14px; }
+      .yulaf-btn:hover { background: #e3e3e3; }
+      .yulaf-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    `,
+
+    mount(controller) {
+      if (this.root) return;
+      if (typeof document === 'undefined' || !document.body) return;
+      // Drop any stale UI from a prior load (e.g. userscript reloaded into the page).
+      const stale = document.querySelectorAll('[data-yulaf-ui]');
+      stale.forEach((el) => el.parentNode && el.parentNode.removeChild(el));
+      if (!this._styled) {
+        if (typeof GM_addStyle === 'function') {
+          try { GM_addStyle(this._css); } catch (e) { log('GM_addStyle', e); }
+        } else {
+          const style = document.createElement('style');
+          style.textContent = this._css;
+          (document.head || document.documentElement).appendChild(style);
+        }
+        this._styled = true;
+      }
+
+      const root = document.createElement('div');
+      root.className = 'yulaf-root';
+      root.setAttribute('data-yulaf-ui', '1');
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'yulaf-toggle';
+      toggle.setAttribute('aria-label', 'YuLaF toggle');
+      toggle.title = 'YuLaF';
+      toggle.textContent = 'Y';
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this._togglePanel();
+      });
+      // Long-press / right-click — quick on/off without opening panel.
+      toggle.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        controller.setEnabled(!controller.settings.enabled);
+      });
+
+      const panel = document.createElement('div');
+      panel.className = 'yulaf-panel';
+      panel.addEventListener('click', (e) => e.stopPropagation());
+
+      root.appendChild(toggle);
+      root.appendChild(panel);
+      document.body.appendChild(root);
+
+      this.root = root;
+      this.toggleBtn = toggle;
+      this.panel = panel;
+      this._controller = controller;
+
+      this._outsideHandler = (e) => {
+        if (!this.panel || !this.panel.classList.contains('yulaf-open')) return;
+        if (!this.root.contains(e.target)) this._closePanel();
+      };
+      document.addEventListener('click', this._outsideHandler);
+
+      this.render(controller.settings);
+    },
+
+    _togglePanel() {
+      if (!this.panel) return;
+      if (this.panel.classList.contains('yulaf-open')) this._closePanel();
+      else this._openPanel();
+    },
+
+    _openPanel() {
+      this.render(this._controller.settings);
+      this.panel.classList.add('yulaf-open');
+    },
+
+    _closePanel() {
+      if (this.panel) this.panel.classList.remove('yulaf-open');
+    },
+
+    render(settings) {
+      if (!this.toggleBtn) return;
+      this.toggleBtn.classList.toggle('yulaf-off', !settings.enabled);
+      this.toggleBtn.setAttribute('data-enabled', settings.enabled ? '1' : '0');
+      if (!this.panel) return;
+
+      const ctrl = this._controller;
+      this.panel.innerHTML = '';
+
+      const enabledRow = document.createElement('div');
+      enabledRow.className = 'yulaf-row';
+      const enabledLabel = document.createElement('label');
+      const enabledInput = document.createElement('input');
+      enabledInput.type = 'checkbox';
+      enabledInput.checked = settings.enabled;
+      enabledInput.className = 'yulaf-enabled';
+      enabledInput.addEventListener('change', () => ctrl.setEnabled(enabledInput.checked));
+      enabledLabel.appendChild(enabledInput);
+      enabledLabel.appendChild(document.createTextNode(' Filter enabled'));
+      enabledRow.appendChild(enabledLabel);
+      this.panel.appendChild(enabledRow);
+
+      const strictRow = document.createElement('div');
+      strictRow.className = 'yulaf-row';
+      const strictLabel = document.createElement('label');
+      const strictInput = document.createElement('input');
+      strictInput.type = 'checkbox';
+      strictInput.checked = settings.strictMode;
+      strictInput.className = 'yulaf-strict';
+      strictInput.addEventListener('change', () => ctrl.updateSettings({ strictMode: strictInput.checked }));
+      strictLabel.appendChild(strictInput);
+      strictLabel.appendChild(document.createTextNode(' Strict mode'));
+      strictRow.appendChild(strictLabel);
+      this.panel.appendChild(strictRow);
+
+      const title = document.createElement('div');
+      title.className = 'yulaf-title';
+      title.textContent = 'Languages';
+      this.panel.appendChild(title);
+
+      const grid = document.createElement('div');
+      grid.className = 'yulaf-grid';
+      const known = Object.keys(Config.languages);
+      const top = Constants.TOP_LANGUAGES_EXTENDED.filter((c) => known.includes(c));
+      const rest = known.filter((c) => !top.includes(c)).sort();
+      const selected = new Set(settings.selectedLanguages);
+      for (const code of [...top, ...rest]) {
+        const lang = Config.languages[code];
+        const cell = document.createElement('label');
+        cell.className = 'yulaf-lang' + (selected.has(code) ? ' yulaf-selected' : '');
+        cell.setAttribute('data-lang', code);
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = selected.has(code);
+        cb.addEventListener('change', () => {
+          const next = new Set(this._controller.settings.selectedLanguages);
+          if (cb.checked) next.add(code); else next.delete(code);
+          ctrl.updateSettings({ selectedLanguages: [...next] });
+        });
+        cell.appendChild(cb);
+        cell.appendChild(document.createTextNode(` ${lang.icon} ${lang.name}`));
+        grid.appendChild(cell);
+      }
+      this.panel.appendChild(grid);
+
+      const actions = document.createElement('div');
+      actions.className = 'yulaf-actions';
+      const showAll = document.createElement('button');
+      showAll.type = 'button';
+      showAll.className = 'yulaf-btn yulaf-show-all';
+      showAll.textContent = 'Show all';
+      showAll.addEventListener('click', () => ctrl.updateSettings({ selectedLanguages: [...known] }));
+      const hideAll = document.createElement('button');
+      hideAll.type = 'button';
+      hideAll.className = 'yulaf-btn yulaf-hide-all';
+      hideAll.textContent = 'Hide all';
+      hideAll.addEventListener('click', () => ctrl.updateSettings({ selectedLanguages: [] }));
+      actions.appendChild(showAll);
+      actions.appendChild(hideAll);
+      this.panel.appendChild(actions);
+    },
+
+    destroy() {
+      if (this._outsideHandler) {
+        document.removeEventListener('click', this._outsideHandler);
+        this._outsideHandler = null;
+      }
+      if (this.root && this.root.parentNode) this.root.parentNode.removeChild(this.root);
+      this.root = this.toggleBtn = this.panel = null;
+    },
+  };
+
   // ── Controller ─────────────────────────────────────────────────────────────
   // MutationObserver-driven controller. Watches for new YouTube items, debounces
   // SPA URL changes (history.pushState/replaceState patching + popstate), and
-  // triggers re-filter cycles. Hardcoded to ['en'] for now — Task 6 adds the
-  // settings UI and GM_* persistence.
+  // triggers re-filter cycles. Settings are loaded via SettingsService and
+  // written back through `updateSettings` / `setEnabled`.
   const Controller = {
     settings: null,
     observer: null,
@@ -763,20 +1023,50 @@
     filteringActive: false,
 
     init() {
-      const d = Constants.DEFAULTS;
-      this.settings = {
-        enabled: d.enabled,
-        strictMode: d.strictMode,
-        hideVideos: d.hideVideos,
-        hideChannels: d.hideChannels,
-        selectedLanguages: [...d.selectedLanguages],
-      };
+      this.settings = SettingsService.load();
       LanguageService.setLanguages(this.settings.selectedLanguages);
       LanguageService.setStrictMode(this.settings.strictMode);
       this.lastUrl = typeof location !== 'undefined' ? window.location.href : '';
 
       if (this.settings.enabled) this.start();
+      this._mountUI();
       log('controller initialised', this.settings);
+    },
+
+    _mountUI() {
+      if (typeof document === 'undefined') return;
+      const tryMount = () => SettingsUI.mount(this);
+      if (document.body) tryMount();
+      else if (typeof document.addEventListener === 'function') {
+        document.addEventListener('DOMContentLoaded', tryMount, { once: true });
+      }
+    },
+
+    updateSettings(updates) {
+      if (!updates || !this.settings) return;
+      Object.assign(this.settings, updates);
+      if ('selectedLanguages' in updates) {
+        LanguageService.setLanguages(this.settings.selectedLanguages);
+      }
+      if ('strictMode' in updates) {
+        LanguageService.setStrictMode(this.settings.strictMode);
+      }
+      SettingsService.save(updates);
+      SettingsUI.render(this.settings);
+      if (this.settings.enabled) {
+        this._clearMarkers();
+        this._runFilterCycle();
+      }
+    },
+
+    setEnabled(enabled) {
+      if (!this.settings) return;
+      const prev = this.settings.enabled;
+      this.settings.enabled = !!enabled;
+      SettingsService.save({ enabled: this.settings.enabled });
+      SettingsUI.render(this.settings);
+      if (this.settings.enabled && !prev) this.start();
+      else if (!this.settings.enabled && prev) this.stop();
     },
 
     get enabled() {
@@ -920,6 +1210,8 @@
       version: Constants.VERSION,
       Config,
       filter: Controller,
+      settings: SettingsService,
+      ui: SettingsUI,
     };
   }
 
@@ -941,6 +1233,8 @@
       Controller,
       Config,
       Constants,
+      SettingsService,
+      SettingsUI,
     };
   }
 })();
