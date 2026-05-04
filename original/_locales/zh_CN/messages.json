@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube 语言过滤器。沉浸与专注"
+  },
+  "extension_description": {
+    "message": "按语言过滤 YouTube 视频，帮助你更专注、保护隐私，并提升语言沉浸体验。"
+  },
+  "toggleShortcut": {
+    "message": "开启/关闭 YouTube 语言过滤器"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "切换过滤器 (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "切换过滤器 (Alt+Y)"
+  }
+}

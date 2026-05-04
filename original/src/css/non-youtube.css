@@ -1,0 +1,180 @@
+/* Non-YouTube Page Styles */
+
+:root {
+  --nyt-bg: #0f0f0f;
+  --nyt-bg-hover: #1a1a1a;
+  --nyt-text: #fff;
+  --nyt-text-muted: #a0a0a0;
+  --nyt-border: #333;
+  --nyt-primary: #ff0000;
+  --nyt-primary-hover: #cc0000;
+  --nyt-secondary: #ff4444;
+  --nyt-success: #10b981;
+  --nyt-purple: #9b59b6;
+}
+
+.non-yt-container {
+  width: 380px;
+  min-height: 420px;
+  padding: 16px;
+  background: var(--nyt-bg);
+  color: var(--nyt-text);
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.non-yt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nyt-border);
+  margin-bottom: 24px;
+}
+
+.non-yt-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.non-yt-logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.non-yt-logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nyt-text);
+}
+
+.non-yt-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.non-yt-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(45deg, var(--nyt-primary), var(--nyt-secondary));
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 8px 24px rgba(255, 0, 0, 0.3);
+}
+
+.non-yt-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--nyt-text);
+}
+
+.non-yt-text {
+  font-size: 0.95rem;
+  color: var(--nyt-text-muted);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.non-yt-text strong {
+  color: var(--nyt-secondary);
+}
+
+.non-yt-btn {
+  background: var(--nyt-primary);
+  color: var(--nyt-text);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 8px;
+}
+
+.non-yt-btn:hover {
+  background: var(--nyt-primary-hover);
+  transform: translateY(-2px);
+}
+
+.non-yt-footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--nyt-border);
+  margin-top: 16px;
+}
+
+.non-yt-footer-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--nyt-text-muted);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--nyt-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.non-yt-footer-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.non-yt-footer-btn:hover {
+  background: var(--nyt-bg-hover);
+  transform: translateY(-1px);
+}
+
+.non-yt-footer-btn.guide-btn:hover {
+  border-color: var(--nyt-success);
+  color: var(--nyt-success);
+}
+
+.non-yt-footer-btn.settings-btn:hover {
+  border-color: var(--nyt-purple);
+  color: var(--nyt-purple);
+}
+
+/* Non-YouTube body styles */
+.non-yt-body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--nyt-bg);
+}
+
+/* Focus Visible */
+.non-yt-btn:focus-visible,
+.non-yt-footer-btn:focus-visible {
+  outline: 2px solid var(--nyt-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

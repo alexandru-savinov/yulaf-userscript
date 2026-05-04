@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube-Sprachfilter. Sprachimmersion & Fokus"
+  },
+  "extension_description": {
+    "message": "Filtert YouTube-Videos nach Sprache – für mehr Fokus, Datenschutz und Sprachimmersion."
+  },
+  "toggleShortcut": {
+    "message": "YouTube-Sprachfilter ein-/ausschalten"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Filter umschalten (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Filter umschalten (Alt+Y)"
+  }
+}

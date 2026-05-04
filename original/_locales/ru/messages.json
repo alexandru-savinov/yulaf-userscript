@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – Языковой фильтр YouTube. Погружение и фокус"
+  },
+  "extension_description": {
+    "message": "Фильтруйте видео YouTube по языку, чтобы лучше сосредоточиться, сохранить конфиденциальность и погружаться в язык."
+  },
+  "toggleShortcut": {
+    "message": "Включить/Выключить языковой фильтр YouTube"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Переключить фильтр (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Переключить фильтр (Alt+Y)"
+  }
+}

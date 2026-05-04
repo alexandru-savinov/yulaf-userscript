@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – Мовний фільтр YouTube. Занурення та фокус"
+  },
+  "extension_description": {
+    "message": "Фільтруйте відео YouTube за мовою, щоб краще зосереджуватися, зберігати приватність і підтримувати мовне занурення."
+  },
+  "toggleShortcut": {
+    "message": "Увімкнути/Вимкнути мовний фільтр YouTube"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Перемкнути фільтр (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Перемкнути фільтр (Alt+Y)"
+  }
+}

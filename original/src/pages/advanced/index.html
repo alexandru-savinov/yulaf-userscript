@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YuLaF - Advanced Settings</title>
+    <link rel="stylesheet" href="../../css/advanced.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="header-content">
+          <img src="/icons/icon128.png" alt="YuLaF logo" class="logo" />
+          <div>
+            <h1>Advanced Settings</h1>
+            <p class="subtitle">Configure all languages and strict mode</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="header-developer-links">
+            <span class="developer-label">👨‍💻 Developers</span>
+            <div class="header-developer-avatars">
+              <a
+                href="https://linkedin.com/in/vakkaskarakurt"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="header-developer-link"
+                title="Vakkas Karakurt"
+              >
+                <img src="../../assets/team/vakkas.jpeg" alt="Vakkas Karakurt" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/emrah-fidann/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="header-developer-link"
+                title="Emrah Fidan"
+              >
+                <img src="../../assets/team/emrah.jpeg" alt="Emrah Fidan" />
+              </a>
+            </div>
+          </div>
+          <a
+            href="https://buymeacoffee.com/yulafdev"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="coffee-btn no-underline"
+            title="Buy me a coffee"
+            >☕ Buy me a coffee</a
+          >
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- Strict Mode Toggle -->
+        <section class="settings-section">
+          <div class="setting-item">
+            <div class="setting-info">
+              <h3>Strict Mode</h3>
+              <p>Only show content with high language detection confidence</p>
+            </div>
+            <label class="switch">
+              <input
+                type="checkbox"
+                id="strictModeToggle"
+                role="switch"
+                aria-label="Enable or disable strict mode"
+              />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Language Selection -->
+        <section class="language-section">
+          <div class="language-header">
+            <h2 id="languageTitle">All Languages</h2>
+            <div class="header-controls">
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="languageSearch"
+                  placeholder="Search languages..."
+                  aria-label="Search languages"
+                  maxlength="50"
+                />
+              </div>
+              <div class="sort-container">
+                <label for="sortBy">Sort by:</label>
+                <select id="sortBy">
+                  <option value="popularity">Popularity</option>
+                  <option value="alphabetical">Alphabetical</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="selected-count" aria-live="polite">
+            <span id="selectedCount">0</span> languages selected
+          </div>
+
+          <div
+            class="language-grid"
+            id="languageOptions"
+            role="group"
+            aria-label="Language selection"
+          >
+            <!-- Populated by JavaScript -->
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <button class="btn-back" id="backBtn">← Back to Popup</button>
+        <div class="footer-info">Changes are saved automatically</div>
+      </footer>
+    </div>
+
+    <!-- Load constants and config first, then advanced settings -->
+    <script src="../../common/constants.js"></script>
+    <script src="../../common/config.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>

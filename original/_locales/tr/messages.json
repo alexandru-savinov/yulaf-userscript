@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube Dil Filtresi. Dile Maruz Kalma ve Odak"
+  },
+  "extension_description": {
+    "message": "Odaklanma, gizlilik ve dile maruz kalma için YouTube videolarını dile göre filtreleyin."
+  },
+  "toggleShortcut": {
+    "message": "YouTube Dil Filtresini Aç/Kapat"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Filtreyi aç/kapat (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Filtreyi aç/kapat (Alt+Y)"
+  }
+}

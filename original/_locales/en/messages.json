@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube Language Filter. Language Immersion & Focus"
+  },
+  "extension_description": {
+    "message": "Filter YouTube videos by language for focus, privacy, and language immersion."
+  },
+  "toggleShortcut": {
+    "message": "Toggle YouTube Language Filter"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Toggle filter (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Toggle filter (Alt+Y)"
+  }
+}

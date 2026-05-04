@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – فلتر لغة يوتيوب. الانغماس والتركيز"
+  },
+  "extension_description": {
+    "message": "صفِّ مقاطع يوتيوب حسب اللغة لزيادة التركيز وحماية الخصوصية ودعم الانغماس اللغوي."
+  },
+  "toggleShortcut": {
+    "message": "تفعيل/تعطيل فلتر لغة يوتيوب"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "تبديل الفلتر (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "تبديل الفلتر (Alt+Y)"
+  }
+}

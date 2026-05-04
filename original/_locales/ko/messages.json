@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube 언어 필터. 몰입과 집중"
+  },
+  "extension_description": {
+    "message": "집중, 개인정보 보호, 언어 몰입을 위해 YouTube 동영상을 언어별로 필터링하세요."
+  },
+  "toggleShortcut": {
+    "message": "YouTube 언어 필터 켜기/끄기"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "필터 전환 (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "필터 전환 (Alt+Y)"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – YouTube 言語フィルター。没入と集中"
+  },
+  "extension_description": {
+    "message": "集中・プライバシー保護・言語学習の没入のために、YouTube 動画を言語別にフィルタリングします。"
+  },
+  "toggleShortcut": {
+    "message": "YouTube言語フィルターのオン/オフを切り替える"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "フィルター切替 (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "フィルター切替 (Alt+Y)"
+  }
+}

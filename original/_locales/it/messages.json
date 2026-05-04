@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – Filtro lingua di YouTube. Immersione e concentrazione"
+  },
+  "extension_description": {
+    "message": "Filtra i video di YouTube per lingua per migliorare la concentrazione, la privacy e l'immersione nella lingua."
+  },
+  "toggleShortcut": {
+    "message": "Attiva/Disattiva filtro lingua di YouTube"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Attiva/disattiva filtro (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Attiva/disattiva filtro (Alt+Y)"
+  }
+}

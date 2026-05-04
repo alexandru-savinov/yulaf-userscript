@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – Filtr języka YouTube. Zanurzenie i skupienie"
+  },
+  "extension_description": {
+    "message": "Filtruj filmy YouTube według języka, aby zwiększyć skupienie, zadbać o prywatność i wspierać zanurzenie językowe."
+  },
+  "toggleShortcut": {
+    "message": "Włącz/Wyłącz filtr języka YouTube"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Przełącz filtr (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Przełącz filtr (Alt+Y)"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "extension_name": {
+    "message": "YuLaF – Filter Bahasa YouTube. Imersi & fokus"
+  },
+  "extension_description": {
+    "message": "Filter video YouTube berdasarkan bahasa untuk membantu fokus, menjaga privasi, dan mendukung imersi bahasa."
+  },
+  "toggleShortcut": {
+    "message": "Aktifkan/Nonaktifkan Filter Bahasa YouTube"
+  },
+  "shortcutHintMac": {
+    "message": "⌃Y"
+  },
+  "shortcutHintOther": {
+    "message": "Alt+Y"
+  },
+  "shortcutTooltipMac": {
+    "message": "Alihkan filter (Ctrl+Y)"
+  },
+  "shortcutTooltipOther": {
+    "message": "Alihkan filter (Alt+Y)"
+  }
+}

@@ -1,0 +1,81 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "manifest_version": 3,
+  "name": "__MSG_extension_name__",
+  "short_name": "YuLaF",
+  "version": "2.2.5",
+  "description": "__MSG_extension_description__",
+  "default_locale": "en",
+
+  "author": "Vakkas Karakurt & Emrah Fidan",
+  "homepage_url": "https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter",
+  "minimum_chrome_version": "88",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "https://img.shields.io/chrome-web-store/*"
+  ],
+
+  "background": {
+    "service_worker": "src/background/index.js",
+    "type": "module"
+  },
+
+  "action": {
+    "default_title": "__MSG_extension_name__",
+    "default_popup": "src/pages/popup/index.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": [
+        "src/common/constants.js",
+        "src/common/config.js",
+        "src/content/services/language-detector.js",
+        "src/content/services/language-service.js",
+        "src/content/services/dom-service.js",
+        "src/content/services/filter-service.js",
+        "src/content/index.js"
+      ],
+      "css": ["src/css/styles.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' https://flagcdn.com data:;"
+  },
+
+  "incognito": "spanning",
+  "offline_enabled": true,
+
+  "commands": {
+    "toggle-filter": {
+      "suggested_key": {
+        "default": "Alt+Y",
+        "mac": "MacCtrl+Y"
+      },
+      "description": "Toggle YouTube Language Filter"
+    }
+  }
+}
