@@ -80,13 +80,20 @@ Additionally, when porting tricky logic (regex detection, filter orchestration),
 - [x] Commit
 
 ### Task 4: Add trigram detector for Latin-alphabet languages
-- [ ] Generate trigram frequency tables for at least: `en`, `es`, `fr`, `de`, `tr`, `pt`, `it`, `nl`. Embed inline in the userscript (no runtime fetch).
-- [ ] Source: a small build script under `tools/build-trigrams.mjs` that reads sample text per language (use UDHR translations — public domain, available in this repo under `tools/corpora/` which the script seeds with short hardcoded samples or fetches once during dev). Output is checked in. The userscript must work without re-running this script.
-- [ ] Implement `detectLatinLanguage(text)` returning `{lang, confidence}` (cosine similarity over normalised trigram vectors)
+- [ ] Add `franc-min` as a **dev-only dependency**: `npm install --save-dev franc-min trigrams`. These are NOT used at runtime — the userscript stays single-file and dependency-free.
+- [ ] Create `tools/build-trigrams.mjs` that:
+  1. Imports `franc-min`'s trigram data (`franc-min/data.json` or equivalent — read it from `node_modules/`)
+  2. Subsets to `[en, es, fr, de, tr, pt, it, nl]`
+  3. Writes the result to `tools/trigrams.generated.json` (checked in)
+  4. Prints a JS literal (`const TRIGRAM_TABLES = {...};`) suitable for pasting between marker comments in `yulaf.user.js`
+- [ ] DO NOT generate corpus text or write language sample files yourself. Vendor the prebuilt trigram statistics from `franc-min` only. Add a one-line attribution comment in `yulaf.user.js` next to the embedded tables: `// Trigram data derived from franc-min (MIT, https://github.com/wooorm/franc)`.
+- [ ] Embed the generated table inline in `yulaf.user.js` between `// ── BEGIN trigram-tables ──` / `// ── END trigram-tables ──` marker comments so the build script can re-write it idempotently.
+- [ ] Implement `detectLatinLanguage(text)` returning `{lang, confidence}` using cosine similarity over normalised trigram vectors. Reference: franc's algorithm (do not require franc at runtime — reimplement the math in plain JS, ~30 lines).
 - [ ] Wire into the language service: character-set detection runs first; trigram detection only for pure-Latin text. Confidence below a tunable threshold → return `null` and do NOT hide the video.
-- [ ] `test/trigram-detector.test.js` — sample titles per supported language; assert correct detection for clearly-in-language titles and `null` for ambiguous/short input
+- [ ] `test/trigram-detector.test.js` — for each supported language, write 2–3 short test titles in that language and assert correct detection. Also test: `null` for empty/whitespace, `null` for very short input (<10 chars), `null` for low-confidence ambiguous input. Keep test fixtures short and topically neutral (greetings, weather, food, simple descriptions).
 - [ ] `npm run check` passes
 - [ ] Commit
+- [ ] **Note**: previous attempts at this task tripped Anthropic content-filter false-positives when generating long multilingual corpus text inline. Vendoring `franc-min`'s prebuilt data avoids that entirely. Do not regenerate corpora; do not paste long blocks of non-English text into your assistant output.
 
 ### Task 5: Port filter service and main controller
 - [ ] Port `original/src/content/services/filter-service.js` as a `FilterService` (processElement, filterContent, processNewNode, shouldHide)
