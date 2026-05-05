@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
-    "eslint": "^9.16.0",
+    "eslint": "^10.3.0",
     "franc-min": "^6.2.0",
     "globals": "^15.13.0",
     "jsdom": "^25.0.1",
