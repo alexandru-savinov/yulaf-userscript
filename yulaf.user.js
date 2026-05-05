@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.4
+// @version      1.0.5
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -29,12 +29,12 @@
     }
   }
   if (typeof window !== 'undefined' && window.location) {
-    lifeLog('script loaded v1.0.4 at', window.location.href);
+    lifeLog('script loaded v1.0.5 at', window.location.href);
   }
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.4',
+    VERSION: '1.0.5',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -486,7 +486,7 @@
     _trigramsOf(text) {
       const cleaned = ' ' + text
         .toLowerCase()
-        .replace(/[ -@[-`{-¿\d]+/g, ' ')
+        .replace(/[\u0000-\u0040\u005B-\u0060\u007B-\u00BF\d]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim() + ' ';
       if (cleaned.length < 3) return null;
