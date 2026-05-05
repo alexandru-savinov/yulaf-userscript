@@ -42,15 +42,15 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
 - [x] Commit. Title: `test: run fixture e2e tests against WebKit in addition to Chromium`.
 
 ### Task 2: Add fixtures for additional YouTube surfaces
-- [ ] `e2e/fixtures/youtube-search.html` — fake search-results page. Top section: `ytd-video-renderer` (long-form, side-by-side layout, larger thumbnail). Middle: `ytd-shelf-renderer` containing `ytd-video-renderer` siblings. Bottom: `ytd-channel-renderer` with channel metadata. Mix English + Russian + Japanese + Turkish video titles (≥ 2 of each).
-- [ ] `e2e/fixtures/youtube-subscriptions.html` — fake subscriptions page using `ytd-rich-grid-renderer` → `ytd-rich-item-renderer` with mixed-language titles.
-- [ ] `e2e/fixtures/youtube-watch.html` — fake watch page. Sidebar: `ytd-watch-next-secondary-results-renderer` containing `ytd-compact-video-renderer` siblings (this is a different selector path than the home feed). Mixed languages.
-- [ ] `e2e/fixtures/youtube-channel.html` — fake channel page with `ytd-grid-video-renderer` items in a `ytd-grid-renderer`.
-- [ ] `e2e/fixtures/youtube-shorts.html` — fake shorts feed using `ytd-reel-shelf-renderer` with `ytd-reel-item-renderer` children.
-- [ ] For each fixture, add a `*.spec.js` that loads the fixture, injects the userscript, and asserts non-allowed-language items are hidden while allowed-language items remain visible. Reuse `e2e/_helpers/inject.js`.
-- [ ] If any selector path is missing from `Config.SELECTORS` in `yulaf.user.js`, add it AND add a unit test for the new selector handling. Do not silently skip elements.
-- [ ] `npm run check` passes (against both Chromium and WebKit)
-- [ ] Commit. Title: `test: add fixtures for search, subscriptions, watch, channel, shorts`.
+- [x] `e2e/fixtures/youtube-search.html` — fake search-results page. Top section: `ytd-video-renderer` (long-form, side-by-side layout, larger thumbnail). Middle: `ytd-shelf-renderer` containing `ytd-video-renderer` siblings. Bottom: `ytd-channel-renderer` with channel metadata. Mix English + Russian + Japanese + Turkish video titles (≥ 2 of each).
+- [x] `e2e/fixtures/youtube-subscriptions.html` — fake subscriptions page using `ytd-rich-grid-renderer` → `ytd-rich-item-renderer` with mixed-language titles.
+- [x] `e2e/fixtures/youtube-watch.html` — fake watch page. Sidebar: `ytd-watch-next-secondary-results-renderer` containing `ytd-compact-video-renderer` siblings (this is a different selector path than the home feed). Mixed languages.
+- [x] `e2e/fixtures/youtube-channel.html` — fake channel page with `ytd-grid-video-renderer` items in a `ytd-grid-renderer`.
+- [x] `e2e/fixtures/youtube-shorts.html` — fake shorts feed using `ytd-reel-shelf-renderer` with `ytd-reel-item-renderer` children.
+- [x] For each fixture, add a `*.spec.js` that loads the fixture, injects the userscript, and asserts non-allowed-language items are hidden while allowed-language items remain visible. Reuse `e2e/_helpers/inject.js`.
+- [x] If any selector path is missing from `Config.SELECTORS` in `yulaf.user.js`, add it AND add a unit test for the new selector handling. Do not silently skip elements. (All required item selectors — `ytd-video-renderer`, `ytd-compact-video-renderer`, `ytd-grid-video-renderer`, `ytd-rich-item-renderer`, `ytd-reel-item-renderer`, `ytd-channel-renderer` — were already in `Config.selectors`. Container renderers (`ytd-shelf-renderer`, `ytd-rich-grid-renderer`, `ytd-watch-next-secondary-results-renderer`, `ytd-grid-renderer`, `ytd-reel-shelf-renderer`) are wrappers; the userscript walks the inner items, so no additions needed.)
+- [x] `npm run check` passes (against both Chromium and WebKit) — 124 unit tests + 40 fixture tests (20 per engine) green.
+- [x] Commit. Title: `test: add fixtures for search, subscriptions, watch, channel, shorts`.
 
 ### Task 3: Add edge-case fixtures for unusual titles
 - [ ] `e2e/fixtures/edge-cases.html` — single fixture page containing a grid of `ytd-rich-item-renderer` items, each with a deliberately unusual `#video-title`. Cases:
