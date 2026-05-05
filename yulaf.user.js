@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.0
+// @version      1.0.1
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -24,7 +24,7 @@
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.0',
+    VERSION: '1.0.1',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -862,18 +862,28 @@
     _outsideHandler: null,
 
     _css: `
-      .yulaf-root { all: initial; position: fixed; right: 12px; bottom: 12px;
-        z-index: 2147483600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .yulaf-toggle { all: unset; box-sizing: border-box; display: flex;
-        align-items: center; justify-content: center; width: 48px; height: 48px;
-        border-radius: 24px; background: #cc0000; color: #fff; font-size: 22px;
-        cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.35); user-select: none;
-        text-align: center; }
+      .yulaf-root { position: fixed !important;
+        right: max(12px, env(safe-area-inset-right)) !important;
+        bottom: calc(max(12px, env(safe-area-inset-bottom)) + 60px) !important;
+        z-index: 2147483647 !important;
+        margin: 0 !important; padding: 0 !important; pointer-events: auto !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 14px; line-height: 1; color: #111; box-sizing: border-box;
+        width: auto; height: auto; opacity: 1; visibility: visible; }
+      .yulaf-toggle { display: flex; align-items: center; justify-content: center;
+        width: 48px; height: 48px; border-radius: 24px; background: #cc0000;
+        color: #fff; font-size: 22px; font-weight: 600; cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+        -webkit-user-select: none; user-select: none;
+        text-align: center; border: none; padding: 0; margin: 0;
+        font-family: inherit; box-sizing: border-box;
+        -webkit-appearance: none; appearance: none;
+        -webkit-tap-highlight-color: transparent; }
       .yulaf-toggle.yulaf-off { background: #555; }
       .yulaf-panel { display: none; position: absolute; right: 0; bottom: 60px;
-        width: 320px; max-height: 70vh; overflow-y: auto; padding: 12px;
-        background: #fff; color: #111; border-radius: 8px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.3); }
+        width: 320px; max-width: 90vw; max-height: 70vh; overflow-y: auto;
+        padding: 12px; background: #fff; color: #111; border-radius: 8px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.3); box-sizing: border-box; }
       .yulaf-panel.yulaf-open { display: block; }
       .yulaf-row { display: flex; align-items: center; justify-content: space-between;
         margin: 6px 0; min-height: 44px; }
@@ -881,14 +891,15 @@
       .yulaf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
       .yulaf-lang { display: flex; align-items: center; gap: 6px; padding: 8px;
         min-height: 44px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer;
-        font-size: 14px; background: #fafafa; }
+        font-size: 14px; background: #fafafa; box-sizing: border-box; }
       .yulaf-lang.yulaf-selected { background: #e6f4ff; border-color: #1677ff; }
       .yulaf-lang input { margin: 0; }
       .yulaf-actions { display: flex; gap: 8px; margin-top: 10px; }
-      .yulaf-btn { all: unset; flex: 1; text-align: center; padding: 10px;
+      .yulaf-btn { flex: 1; text-align: center; padding: 10px;
         min-height: 44px; min-width: 44px; box-sizing: border-box;
         border-radius: 6px; background: #f0f0f0; color: #111; cursor: pointer;
-        border: 1px solid #ccc; font-size: 14px; }
+        border: 1px solid #ccc; font-size: 14px; font-family: inherit;
+        -webkit-appearance: none; appearance: none; }
       .yulaf-btn:hover { background: #e3e3e3; }
       .yulaf-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
     `,
