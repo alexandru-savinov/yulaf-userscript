@@ -88,12 +88,15 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
 - [x] Commit. Title: `test: add WebKit live e2e test against real youtube.com`.
 
 ### Task 6: Triage and fix issues surfaced by Tasks 1–5
-- [ ] Review the test runs from Tasks 1–5. For each test that was marked `fixme`, weakened, or revealed a userscript bug that wasn't fully addressed inline, file it as a sub-bullet here:
-  - [ ] (placeholder — agent fills in actual issues found)
-- [ ] If no issues remain, commit a one-line note in `README.md`'s "Tested in" section listing the engines and surfaces validated, then check this task done.
-- [ ] If issues remain: fix each in `yulaf.user.js`, add or un-`fixme` the corresponding test, run `npm run check` green, then commit per-fix with descriptive titles.
-- [ ] Final `npm run check` AND `npm run e2e:live` both green.
-- [ ] Commit (or skip if covered by per-fix commits). Title: `fix: address issues surfaced by expanded e2e coverage`.
+- [x] Review the test runs from Tasks 1–5. For each test that was marked `fixme`, weakened, or revealed a userscript bug that wasn't fully addressed inline, file it as a sub-bullet here:
+  - [x] `e2e/live/home-webkit.spec.js` is `test.fixme` — symptom and root cause documented inline (Playwright `addInitScript` + `new Function(src)()` smuggling blocked by youtube.com's CSP under WebKit). Real Safari + Userscripts.app injects via the WebKit extension API which bypasses page CSP, so this is a harness gap, not a userscript bug. No userscript fix is possible from inside the headless harness; Task 5 explicitly authorized the fixme. Test stays in the suite to catch a future Playwright fix or CSP shape change.
+  - [x] `e2e/fixtures/perf-1000.spec.js` skips on `fixtures-webkit` — documented design choice in Task 4 (headless WebKit timing on macOS is high-variance and would cause flakes); not a defect.
+  - [x] `test.skip` calls in `e2e/live/home.spec.js` and `e2e/live/mobile.spec.js` are project scoping (chromium-only) so live specs don't double-run across the `live` and `live-webkit` projects — not weakened tests.
+  - [x] Userscript bugs surfaced inline and fixed during Tasks 1–5: URL-only titles misclassifying via the trigram cleaner (fixed in Task 3 with a URL-stripping pre-pass in `LanguageService.detect` + 2 unit tests). No outstanding userscript-side issues.
+- [x] If no issues remain, commit a one-line note in `README.md`'s "Tested in" section listing the engines and surfaces validated, then check this task done. (Added "Tested in" section to `README.md` listing Chromium + WebKit engines and home / search / subscriptions / watch / channel / shorts / mobile / edge-case fixture surfaces, plus live Chromium against real youtube.com, plus the iOS device caveat.)
+- [x] If issues remain: fix each in `yulaf.user.js`, add or un-`fixme` the corresponding test, run `npm run check` green, then commit per-fix with descriptive titles. (N/A — no outstanding userscript issues; the only fixme is a documented harness gap.)
+- [x] Final `npm run check` AND `npm run e2e:live` both green. (`check`: 124 unit + 46 fixture tests pass, 2 perf skipped on WebKit by design. `e2e:live`: 2 passed [Chromium home + mobile against real youtube.com], 4 skipped [webkit live fixme + chromium specs scoped out of the webkit project + vice versa].)
+- [x] Commit (or skip if covered by per-fix commits). Title: `fix: address issues surfaced by expanded e2e coverage`. (Per-fix commits already landed inline during Tasks 1–5; this task's only artifact is the README "Tested in" note + plan triage write-up. Committing under a `docs:` title since no userscript code changed.)
 
 ## Constraints
 

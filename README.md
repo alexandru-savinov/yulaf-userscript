@@ -9,6 +9,10 @@ Works on:
 - `https://www.youtube.com/` (desktop / iPad)
 - `https://m.youtube.com/` (mobile web)
 
+## Tested in
+
+Validated under headless Chromium and WebKit (Safari engine) across home, search, subscriptions, watch sidebar, channel, shorts, mobile, and edge-case (emoji / RTL / mixed-script / very-long / digits-only / URL-only) fixtures, plus a live smoke test against real `youtube.com` (Chromium). WebKit is the closest practical proxy for real Safari available headlessly; real iOS / iPadOS / macOS Safari + Userscripts.app verification is the user's responsibility.
+
 ## What it does
 
 - Detects the language of each video title using a two-stage pipeline:
