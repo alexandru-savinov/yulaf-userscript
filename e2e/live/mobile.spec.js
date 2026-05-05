@@ -1,6 +1,15 @@
 import { test, expect, devices } from '@playwright/test';
 import { injectUserscript } from '../_helpers/inject.js';
 
+// Chromium-only: this test uses Pixel 5 device emulation (a Chromium device
+// profile) and the live-webkit project's Desktop Safari profile would clash.
+// If we want a WebKit mobile live test, it should be its own file with an
+// iPhone profile.
+test.skip(
+  ({ browserName }) => browserName !== 'chromium',
+  'mobile.spec.js uses Pixel 5 device emulation — Chromium only'
+);
+
 test.use({ ...devices['Pixel 5'] });
 
 test('@live: userscript loads on m.youtube.com without throwing', async ({ page }) => {
