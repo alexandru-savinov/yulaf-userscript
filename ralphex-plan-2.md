@@ -73,12 +73,12 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
 - [x] Commit. Title: `test: add edge-case fixtures (emoji, RTL, mixed-script, very long, URL-only)`.
 
 ### Task 4: Add performance smoke test
-- [ ] `e2e/fixtures/perf-1000.spec.js` — fixture-on-the-fly: in the test, inject 1000 `ytd-rich-item-renderer` elements with mixed-language titles into a minimal HTML scaffold via `page.evaluate`. Inject the userscript. Measure the time from script-injection to "all 1000 items have `data-yulaf-processed`" using `performance.now()`.
-- [ ] Assert the wall-clock budget: under 2000 ms (2 seconds) for first-pass filtering of 1000 items on a modern Mac. If the assertion fails, investigate and either tighten the userscript (most likely candidates: trigram detector cosine loop, or redundant work in `MutationObserver` callback) or relax the budget with a justification comment in the spec.
-- [ ] Add a second perf scenario in the same file: stream items in batches of 50 via `setTimeout` (simulating YouTube's progressive render). Assert no `MutationObserver` storm — total CPU time across all observer callbacks under 1000 ms.
-- [ ] Run only against `fixtures-chromium` (skip on `fixtures-webkit` — WebKit timing under headless on macOS is high-variance and would cause flakes). Add a `test.skip(({ browserName }) => browserName === 'webkit', '...')` line.
-- [ ] `npm run check` passes
-- [ ] Commit. Title: `test: add 1000-item performance smoke test`.
+- [x] `e2e/fixtures/perf-1000.spec.js` — fixture-on-the-fly: in the test, inject 1000 `ytd-rich-item-renderer` elements with mixed-language titles into a minimal HTML scaffold via `page.evaluate`. Inject the userscript. Measure the time from script-injection to "all 1000 items have `data-yulaf-processed`" using `performance.now()`. (Scaffold lives at `e2e/fixtures/perf-scaffold.html` — minimal `<ytd-app><div id="contents"></div></ytd-app>` shell so the userscript's `addInitScript` fires on `goto`; `setContent` does not reliably re-trigger init scripts in this harness.)
+- [x] Assert the wall-clock budget: under 2000 ms (2 seconds) for first-pass filtering of 1000 items on a modern Mac. (Observed ~75 ms on M-series mac headless Chromium — comfortably under budget; no userscript changes needed.)
+- [x] Add a second perf scenario in the same file: stream items in batches of 50 via `setTimeout` (simulating YouTube's progressive render). Assert no `MutationObserver` storm — total CPU time across all observer callbacks under 1000 ms. (Wraps `window.MutationObserver` via an `addInitScript` registered before `injectUserscript` so the userscript's observer is the wrapped one. Observed ~30 ms across ~21 callbacks for 1000 items.)
+- [x] Run only against `fixtures-chromium` (skip on `fixtures-webkit` — WebKit timing under headless on macOS is high-variance and would cause flakes). Added `test.skip(({ browserName }) => browserName === 'webkit', '...')` at file scope.
+- [x] `npm run check` passes (46 fixture tests passed, 2 perf tests skipped on WebKit as designed).
+- [x] Commit. Title: `test: add 1000-item performance smoke test`.
 
 ### Task 5: Add WebKit-based live test
 - [ ] `e2e/live/home-webkit.spec.js` — same shape as `e2e/live/home.spec.js` but assigned to the `live-webkit` project (or use Playwright's `test.use({ browserName: 'webkit' })`). Navigates to `https://www.youtube.com`, dismisses any consent banner, injects the userscript, waits for at least one `ytd-rich-item-renderer`, asserts no console errors and that `window.YuLaF` is defined.
