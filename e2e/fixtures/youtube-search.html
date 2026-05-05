@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YuLaF fixture — YouTube search results</title>
+  </head>
+  <body>
+    <ytd-app>
+      <ytd-search>
+        <div id="contents">
+          <!-- Top: side-by-side long-form video results -->
+          <ytd-video-renderer data-lang="en">
+            <a id="video-title" href="/watch?v=sen1">Complete tutorial on building a chrome extension</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="en">
+            <a id="video-title" href="/watch?v=sen2">How to learn JavaScript in thirty days for beginners</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="ru">
+            <a id="video-title" href="/watch?v=sru1">Полное руководство по созданию расширений</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="ru">
+            <a id="video-title" href="/watch?v=sru2">Как изучить программирование за тридцать дней</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="ja">
+            <a id="video-title" href="/watch?v=sja1">プログラミング初心者のための完全ガイド</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="ja">
+            <a id="video-title" href="/watch?v=sja2">日本語の動画で学ぶウェブ開発の基礎</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="tr">
+            <a id="video-title" href="/watch?v=str1">Yeni başlayanlar için programlama dersleri</a>
+          </ytd-video-renderer>
+          <ytd-video-renderer data-lang="tr">
+            <a id="video-title" href="/watch?v=str2">Türkçe yazılım geliştirme rehberi başlangıç</a>
+          </ytd-video-renderer>
+
+          <!-- Middle: shelf renderer holding more video-renderer siblings -->
+          <ytd-shelf-renderer>
+            <div id="contents">
+              <ytd-video-renderer data-lang="en">
+                <a id="video-title" href="/watch?v=shelf-en1">From the same channel another english tutorial</a>
+              </ytd-video-renderer>
+              <ytd-video-renderer data-lang="ja">
+                <a id="video-title" href="/watch?v=shelf-ja1">同じチャンネルからの新しい動画です本日の内容</a>
+              </ytd-video-renderer>
+              <ytd-video-renderer data-lang="ru">
+                <a id="video-title" href="/watch?v=shelf-ru1">Ещё одно полезное видео с того же канала</a>
+              </ytd-video-renderer>
+            </div>
+          </ytd-shelf-renderer>
+
+          <!-- Bottom: channel renderer -->
+          <ytd-channel-renderer data-lang="en">
+            <div id="text-container">
+              <yt-formatted-string id="text">English Tutorials Channel</yt-formatted-string>
+            </div>
+          </ytd-channel-renderer>
+        </div>
+      </ytd-search>
+    </ytd-app>
+  </body>
+</html>
