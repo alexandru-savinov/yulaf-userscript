@@ -9,15 +9,28 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'fixtures',
+      name: 'fixtures-chromium',
       testMatch: /fixtures\/.*\.spec\.js$/,
       use: { ...devices['Desktop Chrome'] },
+      timeout: 15_000,
+    },
+    {
+      name: 'fixtures-webkit',
+      testMatch: /fixtures\/.*\.spec\.js$/,
+      use: { ...devices['Desktop Safari'], browserName: 'webkit' },
       timeout: 15_000,
     },
     {
       name: 'live',
       testMatch: /live\/.*\.spec\.js$/,
       use: { ...devices['Desktop Chrome'] },
+      timeout: 60_000,
+      retries: 2,
+    },
+    {
+      name: 'live-webkit',
+      testMatch: /live\/.*\.spec\.js$/,
+      use: { ...devices['Desktop Safari'], browserName: 'webkit' },
       timeout: 60_000,
       retries: 2,
     },

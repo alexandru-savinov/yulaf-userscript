@@ -30,16 +30,16 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
 ## Tasks
 
 ### Task 1: Add WebKit (Safari engine) project to Playwright
-- [ ] Install the WebKit browser binary: `npx playwright install webkit`
-- [ ] Update `playwright.config.js`: replace the single `fixtures` project with two — `fixtures-chromium` (existing config, renamed) and `fixtures-webkit` (same `testDir`, `use: { browserName: 'webkit' }`). Both must run from `npm run check`.
-- [ ] Update `playwright.config.js`: add a `live-webkit` project mirroring `live` but using WebKit. Excluded from `npm run check`; runs via `npm run e2e:live`.
-- [ ] Update `package.json` scripts:
+- [x] Install the WebKit browser binary: `npx playwright install webkit`
+- [x] Update `playwright.config.js`: replace the single `fixtures` project with two — `fixtures-chromium` (existing config, renamed) and `fixtures-webkit` (same `testDir`, `use: { browserName: 'webkit' }`). Both must run from `npm run check`.
+- [x] Update `playwright.config.js`: add a `live-webkit` project mirroring `live` but using WebKit. Excluded from `npm run check`; runs via `npm run e2e:live`.
+- [x] Update `package.json` scripts:
   - `"check"` ends with `playwright test --project=fixtures-chromium --project=fixtures-webkit`
   - `"e2e"` runs both fixture projects
   - `"e2e:live"` runs `live` and `live-webkit`
-- [ ] Run `npm run check` and triage any WebKit-only failures. Common culprits: WebKit's stricter CSP on `file://`, different `MutationObserver` timing, slightly different `:has()` / `:is()` selector support. Fix in `yulaf.user.js` or in the fixture HTML, not by weakening the test.
-- [ ] If a WebKit failure reveals a real Safari bug (e.g. an API used that Safari doesn't support), fix the userscript code; add a regression test.
-- [ ] Commit. Title: `test: run fixture e2e tests against WebKit in addition to Chromium`.
+- [x] Run `npm run check` and triage any WebKit-only failures. Common culprits: WebKit's stricter CSP on `file://`, different `MutationObserver` timing, slightly different `:has()` / `:is()` selector support. Fix in `yulaf.user.js` or in the fixture HTML, not by weakening the test. (No WebKit-only failures — all 20 tests passed across both engines.)
+- [x] If a WebKit failure reveals a real Safari bug (e.g. an API used that Safari doesn't support), fix the userscript code; add a regression test. (N/A — no WebKit-only failures observed.)
+- [x] Commit. Title: `test: run fixture e2e tests against WebKit in addition to Chromium`.
 
 ### Task 2: Add fixtures for additional YouTube surfaces
 - [ ] `e2e/fixtures/youtube-search.html` — fake search-results page. Top section: `ytd-video-renderer` (long-form, side-by-side layout, larger thumbnail). Middle: `ytd-shelf-renderer` containing `ytd-video-renderer` siblings. Bottom: `ytd-channel-renderer` with channel metadata. Mix English + Russian + Japanese + Turkish video titles (≥ 2 of each).
