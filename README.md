@@ -28,36 +28,79 @@ Validated under headless Chromium and WebKit (Safari engine) across home, search
 - All preferences persist via the Userscripts app (`GM_getValue` /
   `GM_setValue`).
 
-## Install — macOS Safari
+## Install
+
+The script lives at one canonical URL once this branch is merged to `main`:
+
+> **Raw script:** <https://raw.githubusercontent.com/alexandru-savinov/yulaf-userscript/main/yulaf.user.js>
+
+Opening that link in Safari with the Userscripts app installed prompts you
+to install it directly — that is the fastest path on all three platforms.
+The step-by-step instructions below cover the manual flow if the
+auto-install prompt doesn't appear, and also walk you through the one-time
+Userscripts app setup.
+
+### macOS (Safari)
 
 1. Install the
    [Userscripts app](https://apps.apple.com/app/userscripts/id1463298887)
-   from the Mac App Store.
-2. Open Safari → Settings → Extensions → enable **Userscripts**.
-3. In the Userscripts app set a save directory (any folder you like) and turn
-   on the toolbar icon for `youtube.com` and `m.youtube.com`.
-4. Click the Userscripts toolbar icon → "Open editor" → "+" → "New JS".
-5. Paste the contents of [`yulaf.user.js`](./yulaf.user.js) and save.
-6. Reload `https://www.youtube.com/`. You should see the small red "Y" floating
+   from the Mac App Store (free).
+2. Open Safari → **Settings → Extensions** → enable **Userscripts**.
+3. Click the Userscripts toolbar button → **Open Extension Preferences** →
+   set a **Save Location** (an empty folder is best — the app manages its
+   contents).
+4. **Easiest:** open the [raw script URL](#install) above in Safari. The
+   Userscripts editor opens with the script pre-loaded → click **Save**.
+   *Or, manually:* Userscripts toolbar icon → **Open Editor** → **+** →
+   **New JS** → paste the contents of [`yulaf.user.js`](./yulaf.user.js) →
+   **Save**.
+5. Visit `https://www.youtube.com/`. A small red **Y** toggle appears
    bottom-right.
 
-You can alternatively click the raw `yulaf.user.js` link from your forked
-repository and Userscripts will offer to install it.
+### iPhone (iOS Safari)
 
-## Install — iOS / iPadOS
+1. Install **Userscripts** from the App Store
+   ([same app](https://apps.apple.com/app/userscripts/id1463298887)).
+2. Open the **Settings** app → **Safari → Extensions → Userscripts**:
+   enable it, then set permission to **Allow** for `youtube.com` and
+   `m.youtube.com` (or **All Websites** if you prefer).
+3. Open the **Userscripts** app once. It asks you to choose a save
+   directory in Files — create one (e.g. `Files → On My iPhone →
+   Userscripts`) and select it.
+4. **Easiest:** in Safari, navigate to the
+   [raw script URL](#install) above. Userscripts detects the `.user.js`
+   suffix and offers to install — confirm.
+   *Or, manually:* download the file into the Userscripts folder via
+   share-sheet, iCloud Drive, or AirDrop from your Mac.
+5. Open `https://m.youtube.com/`. Tap the **AA** button in the address
+   bar → **Manage Extensions** → confirm Userscripts is enabled for this
+   site. Reload — the floating **Y** toggle appears bottom-right.
+6. Tap the **Y** to open the language picker.
 
-1. Install **Userscripts** from the App Store (same name, same publisher as
-   above).
-2. Settings → Safari → Extensions → enable **Userscripts**, then grant it
-   "Allow on Every Website" (or scope to youtube.com / m.youtube.com).
-3. In Files, create a folder for userscripts. Open Userscripts and point it at
-   that folder.
-4. Save `yulaf.user.js` into that folder (e.g. share-sheet from a download in
-   Safari, or drop in via iCloud Drive).
-5. Open Safari → tap the **A**ᴬ button in the address bar → Userscripts →
-   confirm `yulaf.user.js` is enabled for the site.
-6. Reload the page. The floating toggle appears bottom-right; tap it to open
-   the language picker.
+### iPad (iPadOS Safari)
+
+The flow is identical to iPhone above; iPad-specific notes:
+
+- iPad Safari defaults to the **desktop** YouTube layout
+  (`https://www.youtube.com/`). The userscript handles both desktop and
+  mobile (`https://m.youtube.com/`) layouts.
+- If you have a Magic Keyboard or trackpad attached, the toggle also
+  responds to right-click / two-finger tap for instant on/off without
+  opening the panel — same as macOS.
+
+Steps:
+
+1. Install **Userscripts** from the App Store.
+2. **Settings → Safari → Extensions → Userscripts**: enable, then **Allow**
+   on `youtube.com` (and `m.youtube.com` if you use the mobile layout).
+3. Open the **Userscripts** app and pick a save folder in Files
+   (`Files → On My iPad → Userscripts` works well).
+4. **Easiest:** open the [raw script URL](#install) in Safari and let
+   Userscripts install it.
+   *Or, manually:* save `yulaf.user.js` into the chosen folder (Files
+   drag-and-drop, iCloud Drive, AirDrop from your Mac).
+5. Reload `https://www.youtube.com/`. The floating **Y** appears
+   bottom-right.
 
 ## Configuring
 
