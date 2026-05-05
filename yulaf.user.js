@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.2
+// @version      1.0.3
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -21,10 +21,20 @@
       console.log('[YuLaF]', ...args);
     }
   }
+  // Always-on lifecycle logs (cheap, useful for on-device debugging via
+  // Mac Safari Web Inspector). One line on load, one line on mount.
+  function lifeLog(...args) {
+    if (typeof console !== 'undefined' && typeof console.log === 'function') {
+      console.log('[YuLaF]', ...args);
+    }
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    lifeLog('script loaded v1.0.3 at', window.location.href);
+  }
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.2',
+    VERSION: '1.0.3',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -822,6 +832,17 @@
     load() {
       const d = Constants.DEFAULTS;
       const known = Object.keys(Config.languages);
+
+      // Escape hatch: if the URL contains `#yulaf-reset`, wipe stored prefs and
+      // start over with defaults. Useful when the toggle UI is unreachable
+      // (e.g. iOS rendering bug) and the user needs to recover sane settings.
+      if (typeof window !== 'undefined' && window.location
+          && /yulaf-reset/.test(window.location.hash || '')) {
+        for (const k of this.KEYS) this._gmSet(k, undefined);
+        lifeLog('settings reset via #yulaf-reset hash');
+        return { ...d, selectedLanguages: [...d.selectedLanguages] };
+      }
+
       const rawLangs = this._gmGet('selectedLanguages', d.selectedLanguages);
       const langs = Array.isArray(rawLangs)
         ? rawLangs.filter((c) => known.includes(c))
@@ -953,6 +974,15 @@
       this.toggleBtn = toggle;
       this.panel = panel;
       this._controller = controller;
+      try {
+        const computed = (typeof window !== 'undefined' && window.getComputedStyle)
+          ? window.getComputedStyle(root) : null;
+        lifeLog('UI mounted', {
+          rootInBody: document.body.contains(root),
+          bottom: computed ? computed.bottom : 'n/a',
+          right: computed ? computed.right : 'n/a',
+        });
+      } catch (e) { log('mount lifeLog failed', e); }
 
       this._outsideHandler = (e) => {
         if (!this.panel || !this.panel.classList.contains('yulaf-open')) return;
@@ -1116,8 +1146,9 @@
     // listeners that would interfere with test isolation.
     _installRemountHooks() {
       if (this._remountHooksInstalled) return;
-      if (typeof location === 'undefined' || typeof document === 'undefined') return;
-      if (!location.hostname || !location.hostname.includes('youtube.com')) return;
+      if (typeof window === 'undefined' || !window.location || typeof document === 'undefined') return;
+      const host = window.location.hostname || '';
+      if (!host.includes('youtube.com')) return;
       this._remountHooksInstalled = true;
 
       const remount = () => {
