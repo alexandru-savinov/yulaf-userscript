@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.3
+// @version      1.0.4
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -29,12 +29,12 @@
     }
   }
   if (typeof window !== 'undefined' && window.location) {
-    lifeLog('script loaded v1.0.3 at', window.location.href);
+    lifeLog('script loaded v1.0.4 at', window.location.href);
   }
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.3',
+    VERSION: '1.0.4',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -847,12 +847,18 @@
       const langs = Array.isArray(rawLangs)
         ? rawLangs.filter((c) => known.includes(c))
         : [];
+      // English is an enforced floor: always present in selectedLanguages,
+      // independent of stored prefs. Guarantees something gets filtered even
+      // when the toggle UI is unreachable, storage is corrupt, or the user
+      // accidentally hide-all'd everything.
+      const finalLangs = langs.length > 0 ? langs.slice() : [...d.selectedLanguages];
+      if (!finalLangs.includes('en')) finalLangs.push('en');
       return {
         enabled: this._gmGet('enabled', d.enabled) !== false,
         strictMode: this._gmGet('strictMode', d.strictMode) === true,
         hideVideos: this._gmGet('hideVideos', d.hideVideos) !== false,
         hideChannels: this._gmGet('hideChannels', d.hideChannels) !== false,
-        selectedLanguages: langs.length > 0 ? langs : [...d.selectedLanguages],
+        selectedLanguages: finalLangs,
       };
     },
 

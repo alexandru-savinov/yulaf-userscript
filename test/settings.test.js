@@ -46,6 +46,16 @@ describe('SettingsService.load', () => {
     const settings = yulaf.SettingsService.load();
     expect(settings.selectedLanguages).toEqual(['en']);
   });
+
+  it('always includes English as a floor, even when stored prefs exclude it', () => {
+    const yulaf = loadUserscript({
+      gmStorage: new Map([['selectedLanguages', ['ru', 'ja']]]),
+    });
+    const settings = yulaf.SettingsService.load();
+    expect(settings.selectedLanguages).toContain('en');
+    expect(settings.selectedLanguages).toContain('ru');
+    expect(settings.selectedLanguages).toContain('ja');
+  });
 });
 
 describe('SettingsService.save / round-trip', () => {
@@ -64,7 +74,8 @@ describe('SettingsService.save / round-trip', () => {
     const reloaded = yulaf.SettingsService.load();
     expect(reloaded.enabled).toBe(false);
     expect(reloaded.strictMode).toBe(true);
-    expect(reloaded.selectedLanguages).toEqual(['ru', 'ja']);
+    // English is now an enforced floor — load() always includes it.
+    expect(reloaded.selectedLanguages).toEqual(expect.arrayContaining(['ru', 'ja', 'en']));
   });
 
   it('subscribers are notified on save', () => {
@@ -101,8 +112,9 @@ describe('Controller.init loads from SettingsService', () => {
     yulaf.Controller._unpatchHistory();
     yulaf.Controller.filteringActive = false;
     yulaf.Controller.init();
-    expect(yulaf.Controller.settings.selectedLanguages).toEqual(['ru']);
-    expect(yulaf.LanguageService.selectedLanguages).toEqual(['ru']);
+    // English is force-included as a fallback floor; ['ru'] becomes ['ru', 'en'].
+    expect(yulaf.Controller.settings.selectedLanguages).toEqual(expect.arrayContaining(['ru', 'en']));
+    expect(yulaf.LanguageService.selectedLanguages).toEqual(expect.arrayContaining(['ru', 'en']));
     yulaf.Controller.stop();
   });
 

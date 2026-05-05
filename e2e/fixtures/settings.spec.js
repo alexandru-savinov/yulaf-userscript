@@ -17,7 +17,7 @@ async function waitFiltered(page) {
   });
 }
 
-test('seeded selectedLanguages=[ru] inverts the hide pattern after reload', async ({ page }) => {
+test('seeded selectedLanguages=[ru] keeps ru + en visible (English floor) and hides ja', async ({ page }) => {
   await injectUserscript(page, { initialStorage: { selectedLanguages: ['ru'] } });
   await page.goto(fixtureUrl);
   await waitFiltered(page);
@@ -37,9 +37,12 @@ test('seeded selectedLanguages=[ru] inverts the hide pattern after reload', asyn
     return out;
   });
 
+  // English is an enforced floor: stored ['ru'] becomes effective ['ru', 'en']
+  // so both ru and en stay visible. ja gets hidden.
   expect(visibility.ru.visible).toBeGreaterThan(0);
   expect(visibility.ru.hidden).toBe(0);
-  expect(visibility.en.hidden).toBeGreaterThan(0);
+  expect(visibility.en.visible).toBeGreaterThan(0);
+  expect(visibility.en.hidden).toBe(0);
   expect(visibility.ja.hidden).toBeGreaterThan(0);
 });
 
