@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.1
+// @version      1.0.2
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -24,7 +24,7 @@
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.1',
+    VERSION: '1.0.2',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -1100,10 +1100,43 @@
 
     _mountUI() {
       if (typeof document === 'undefined') return;
-      const tryMount = () => SettingsUI.mount(this);
+      const tryMount = () => {
+        SettingsUI.mount(this);
+        this._installRemountHooks();
+      };
       if (document.body) tryMount();
       else if (typeof document.addEventListener === 'function') {
         document.addEventListener('DOMContentLoaded', tryMount, { once: true });
+      }
+    },
+
+    // YouTube's mobile SPA replaces large DOM subtrees on hydration and route
+    // changes, which wipes our injected toggle. Re-mount on YouTube's own SPA
+    // events. Gated by hostname so unit tests on `file://` don't attach
+    // listeners that would interfere with test isolation.
+    _installRemountHooks() {
+      if (this._remountHooksInstalled) return;
+      if (typeof location === 'undefined' || typeof document === 'undefined') return;
+      if (!location.hostname || !location.hostname.includes('youtube.com')) return;
+      this._remountHooksInstalled = true;
+
+      const remount = () => {
+        if (SettingsUI.root && document.body && document.body.contains(SettingsUI.root)) return;
+        SettingsUI.root = null;
+        SettingsUI.toggleBtn = null;
+        SettingsUI.panel = null;
+        if (document.body) SettingsUI.mount(this);
+      };
+
+      document.addEventListener('yt-navigate-finish', remount);
+      document.addEventListener('yt-page-data-updated', remount);
+
+      // Belt-and-braces: a body-scoped MutationObserver as a fallback in case
+      // YouTube ships SPA navigation without firing the named events (mobile
+      // sometimes does this). Only fires when our root is actually gone.
+      if (typeof MutationObserver !== 'undefined' && document.body) {
+        this._uiWatcher = new MutationObserver(remount);
+        this._uiWatcher.observe(document.body, { childList: true });
       }
     },
 
