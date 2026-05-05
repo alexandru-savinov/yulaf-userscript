@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YuLaF — YouTube Language Filter
 // @namespace    https://github.com/vakkaskarakurt/YuLaF-YouTube-Language-Filter
-// @version      1.0.5
+// @version      1.0.6
 // @description  Hide YouTube videos whose titles are not in your selected languages. Safari/Userscripts port.
 // @author       YuLaF contributors
 // @match        https://*.youtube.com/*
@@ -29,12 +29,12 @@
     }
   }
   if (typeof window !== 'undefined' && window.location) {
-    lifeLog('script loaded v1.0.5 at', window.location.href);
+    lifeLog('script loaded v1.0.6 at', window.location.href);
   }
 
   // ── Constants ──────────────────────────────────────────────────────────────
   const Constants = {
-    VERSION: '1.0.5',
+    VERSION: '1.0.6',
 
     TIMING: {
       FETCH_TIMEOUT: 5000,
@@ -980,15 +980,21 @@
       this.toggleBtn = toggle;
       this.panel = panel;
       this._controller = controller;
-      try {
-        const computed = (typeof window !== 'undefined' && window.getComputedStyle)
-          ? window.getComputedStyle(root) : null;
-        lifeLog('UI mounted', {
-          rootInBody: document.body.contains(root),
-          bottom: computed ? computed.bottom : 'n/a',
-          right: computed ? computed.right : 'n/a',
-        });
-      } catch (e) { log('mount lifeLog failed', e); }
+      // One-shot mount log. Multiple mounts would otherwise flood the iOS
+      // Safari console (each remount fires this), and the flood itself can
+      // pin the renderer.
+      if (!this._mountLogged) {
+        this._mountLogged = true;
+        try {
+          const computed = (typeof window !== 'undefined' && window.getComputedStyle)
+            ? window.getComputedStyle(root) : null;
+          lifeLog('UI mounted', {
+            rootInBody: document.body.contains(root),
+            bottom: computed ? computed.bottom : 'n/a',
+            right: computed ? computed.right : 'n/a',
+          });
+        } catch (e) { log('mount lifeLog failed', e); }
+      }
 
       this._outsideHandler = (e) => {
         if (!this.panel || !this.panel.classList.contains('yulaf-open')) return;
@@ -1157,24 +1163,33 @@
       if (!host.includes('youtube.com')) return;
       this._remountHooksInstalled = true;
 
+      // Throttle: never remount more than once per 800ms. Without this, on
+      // mobile YouTube the body-mutation feedback loop (our mount → body
+      // childList → observer fires → checks → ours is back → noop, BUT also
+      // YouTube's own continuous re-renders) can pin the renderer and lock up
+      // Safari.
+      let lastRemountAt = 0;
       const remount = () => {
+        const now = Date.now();
+        if (now - lastRemountAt < 800) return;
         if (SettingsUI.root && document.body && document.body.contains(SettingsUI.root)) return;
+        lastRemountAt = now;
         SettingsUI.root = null;
         SettingsUI.toggleBtn = null;
         SettingsUI.panel = null;
         if (document.body) SettingsUI.mount(this);
       };
 
+      // YouTube-specific SPA events. Stable, low-frequency.
       document.addEventListener('yt-navigate-finish', remount);
       document.addEventListener('yt-page-data-updated', remount);
+      // Mobile YouTube uses different event names. Hook a few variants.
+      document.addEventListener('yt-navigate', remount);
+      document.addEventListener('state-navigateend', remount);
 
-      // Belt-and-braces: a body-scoped MutationObserver as a fallback in case
-      // YouTube ships SPA navigation without firing the named events (mobile
-      // sometimes does this). Only fires when our root is actually gone.
-      if (typeof MutationObserver !== 'undefined' && document.body) {
-        this._uiWatcher = new MutationObserver(remount);
-        this._uiWatcher.observe(document.body, { childList: true });
-      }
+      // No body-scoped MutationObserver here. On the mobile site it fires
+      // hundreds of times per second during normal use and (combined with the
+      // mount step) locks up the page.
     },
 
     updateSettings(updates) {
