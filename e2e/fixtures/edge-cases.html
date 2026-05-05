@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YuLaF fixture — edge-case titles</title>
+  </head>
+  <body>
+    <ytd-app>
+      <ytd-browse>
+        <ytd-rich-grid-renderer>
+          <div id="contents">
+            <ytd-rich-item-renderer data-case="empty">
+              <a id="video-title" href="/watch?v=empty">   </a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="single-char">
+              <a id="video-title" href="/watch?v=single">A</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="emoji-en-word">
+              <a id="video-title" href="/watch?v=emojien">🎉🎊🥳 Birthday 🎂🎈🎉</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="emoji-ja-word">
+              <a id="video-title" href="/watch?v=emojija">🌸🌸 春 🌸🌸</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="mixed-latin-cjk">
+              <a id="video-title" href="/watch?v=mixedcjk">ANIME REVIEW: 鬼滅の刃 episode 1</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="mixed-latin-cyr">
+              <a id="video-title" href="/watch?v=mixedcyr">Tutorial по Python для новичков</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="rtl-arabic">
+              <a id="video-title" href="/watch?v=rtlar" dir="rtl">كيفية تعلم البرمجة</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="rtl-hebrew">
+              <a id="video-title" href="/watch?v=rtlhe" dir="rtl">איך ללמוד תכנות</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="very-long-en">
+              <a id="video-title" href="/watch?v=longen">This is an extremely long English video title that goes on and on with many words about how to learn programming from scratch and build a real production application that actually works in the real world for many people who want to start coding today and ship something useful.</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="very-long-ru">
+              <a id="video-title" href="/watch?v=longru">Это очень длинное русское название видео которое содержит множество слов о том как научиться программированию с нуля и построить настоящее приложение которое действительно работает в реальном мире для большого количества людей сегодня прямо сейчас.</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="digits-punct">
+              <a id="video-title" href="/watch?v=digits">2024 — #1!!!</a>
+            </ytd-rich-item-renderer>
+
+            <ytd-rich-item-renderer data-case="url-only">
+              <a id="video-title" href="/watch?v=url">https://example.com</a>
+            </ytd-rich-item-renderer>
+          </div>
+        </ytd-rich-grid-renderer>
+      </ytd-browse>
+    </ytd-app>
+  </body>
+</html>

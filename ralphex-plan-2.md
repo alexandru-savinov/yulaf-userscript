@@ -53,7 +53,7 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
 - [x] Commit. Title: `test: add fixtures for search, subscriptions, watch, channel, shorts`.
 
 ### Task 3: Add edge-case fixtures for unusual titles
-- [ ] `e2e/fixtures/edge-cases.html` — single fixture page containing a grid of `ytd-rich-item-renderer` items, each with a deliberately unusual `#video-title`. Cases:
+- [x] `e2e/fixtures/edge-cases.html` — single fixture page containing a grid of `ytd-rich-item-renderer` items, each with a deliberately unusual `#video-title`. Cases:
   - Empty title (whitespace only)
   - One-character title (`A`)
   - Mostly emoji with one English word: `🎉🎊🥳 Birthday 🎂🎈🎉`
@@ -66,11 +66,11 @@ Live tests stay opt-in via `npm run e2e:live` (now also includes a webkit live p
   - Very long title in Russian
   - Title with only digits and punctuation: `2024 — #1!!!`
   - Title with only URLs: `https://example.com`
-- [ ] `e2e/fixtures/edge-cases.spec.js` — for each case, assert the script processes the element without throwing AND chooses a defensible outcome (hide for clearly non-allowed, show for clearly allowed, show for ambiguous-or-unknown — this is the "low confidence → show" rule from Phase 1 Task 4).
-- [ ] Document the policy with a one-line comment in the spec: emoji-only / digits-only / URL-only titles → undetectable → show.
-- [ ] If any case throws or hangs, fix `yulaf.user.js` and add a unit test for the same input.
-- [ ] `npm run check` passes
-- [ ] Commit. Title: `test: add edge-case fixtures (emoji, RTL, mixed-script, very long, URL-only)`.
+- [x] `e2e/fixtures/edge-cases.spec.js` — for each case, assert the script processes the element without throwing AND chooses a defensible outcome (hide for clearly non-allowed, show for clearly allowed, show for ambiguous-or-unknown — this is the "low confidence → show" rule from Phase 1 Task 4).
+- [x] Document the policy with a one-line comment in the spec: emoji-only / digits-only / URL-only titles → undetectable → show.
+- [x] If any case throws or hangs, fix `yulaf.user.js` and add a unit test for the same input. (URL-only titles were being misclassified — the trigram cleaner reduces `https://example.com` to `https example com`, which matches es/pt/it tables closely. Added a URL-stripping pre-pass in `LanguageService.detect` plus 2 unit tests.)
+- [x] `npm run check` passes
+- [x] Commit. Title: `test: add edge-case fixtures (emoji, RTL, mixed-script, very long, URL-only)`.
 
 ### Task 4: Add performance smoke test
 - [ ] `e2e/fixtures/perf-1000.spec.js` — fixture-on-the-fly: in the test, inject 1000 `ytd-rich-item-renderer` elements with mixed-language titles into a minimal HTML scaffold via `page.evaluate`. Inject the userscript. Measure the time from script-injection to "all 1000 items have `data-yulaf-processed`" using `performance.now()`.
