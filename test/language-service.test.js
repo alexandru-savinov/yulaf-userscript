@@ -165,5 +165,23 @@ describe('LanguageService — caching layer', () => {
       expect(LanguageService.detect('a')).toBe(null);
       expect(LanguageService.textCache.size).toBe(0);
     });
+
+    it('treats URL-only input as undetectable (default-show)', () => {
+      // The trigram cleaner reduces 'https://example.com' to 'https example com',
+      // which lands close to es/pt/it tables and used to misclassify as non-en.
+      // After URL stripping, nothing is left → return null → caller shows.
+      LanguageService.setLanguages(['en']);
+      expect(LanguageService.detect('https://example.com')).toBe(null);
+      expect(LanguageService.detect('http://foo.bar/baz')).toBe(null);
+      expect(LanguageService.detect('www.example.com/path')).toBe(null);
+    });
+
+    it('strips embedded URLs but still classifies the surrounding text', () => {
+      LanguageService.setLanguages(['en']);
+      // Russian sentence with a trailing URL — URL drops out, ru chars remain → hide.
+      expect(
+        LanguageService.detect('Привет мир сегодня https://example.com')
+      ).toBe(false);
+    });
   });
 });

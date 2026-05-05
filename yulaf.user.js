@@ -633,6 +633,19 @@
       if (!text || text.length < Config.detection.minLength) return null;
       if (this.selectedLanguages.length === 0) return true;
 
+      // Strip URLs and bare-domain tokens before classification — the trigram
+      // cleaner reduces 'https://example.com' to 'https example com', which
+      // matches non-English Latin tables (Spanish/Portuguese share 'com')
+      // closely enough to misfire. After stripping, if nothing is left, treat
+      // as undetectable so the default-show rule applies.
+      const stripped = text
+        .replace(/\bhttps?:\/\/\S+/gi, ' ')
+        .replace(/\bwww\.\S+/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (stripped.length < Config.detection.minLength) return null;
+      text = stripped;
+
       const key = this.createCacheKey(text, this.selectedLanguages, this.strictMode);
       const cached = this.getCachedResult(key);
       if (cached !== undefined) return cached;
