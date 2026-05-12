@@ -12,7 +12,7 @@
     "e2e:live": "playwright test --project=live --project=live-webkit"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.60.0",
     "eslint": "^9.16.0",
     "franc-min": "^6.2.0",
     "globals": "^15.13.0",
